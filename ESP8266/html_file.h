@@ -86,6 +86,8 @@ button {
 }
 
 #response-content {
+    white-space: pre;
+    font-family: monospace;
     color: #999;
     font-size: 12px;
 }
@@ -129,14 +131,9 @@ button {
             <form onsubmit="return sendFormData();">
                 <div id="form-container">
                     <div class="flex-column gap-05 w-100p">
-                        <label for="textarea">Macro #1:</label>
-                        <textarea id="textarea" name="textarea"></textarea>
+                        <label for="macro1">Macro #1:</label>
+                        <textarea id="macro1" name="macro1"></textarea>
                         <!-- <input type="text" id="textinput" name="textinput" /><br /><br /> -->
-                    </div>
-
-                    <div class="flex-row gap-05">
-                        <label for="checkbox">Enabled</label>
-                        <input type="checkbox" id="checkbox" name="checkbox" value="on" />
                     </div>
 
                     <button type="submit">Save</button>
@@ -151,8 +148,7 @@ button {
 
         <script>
 function sendFormData() {
-    const textarea = document.getElementById('textarea').value;
-    const checkbox = document.getElementById('checkbox').checked ? 'on' : 'off';
+    const macro1 = document.getElementById('macro1').value;
 
     const xhttp = new XMLHttpRequest();
     xhttp.open('POST', '/click', true);
@@ -164,8 +160,7 @@ function sendFormData() {
         }
     };
 
-    const data =
-        'textarea=' + encodeURIComponent(textarea) + '&checkbox=' + encodeURIComponent(checkbox);
+    const data = 'macro1=' + encodeURIComponent(macro1);
     xhttp.send(data);
 
     return false;

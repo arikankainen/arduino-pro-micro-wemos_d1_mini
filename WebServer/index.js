@@ -1,6 +1,5 @@
 function sendFormData() {
-    const textarea = document.getElementById('textarea').value;
-    const checkbox = document.getElementById('checkbox').checked ? 'on' : 'off';
+    const macro1 = document.getElementById('macro1').value;
 
     const xhttp = new XMLHttpRequest();
     xhttp.open('POST', '/click', true);
@@ -12,8 +11,7 @@ function sendFormData() {
         }
     };
 
-    const data =
-        'textarea=' + encodeURIComponent(textarea) + '&checkbox=' + encodeURIComponent(checkbox);
+    const data = 'macro1=' + encodeURIComponent(macro1);
     xhttp.send(data);
 
     return false;

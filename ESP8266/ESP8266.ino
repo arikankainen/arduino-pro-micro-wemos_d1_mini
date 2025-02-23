@@ -2,25 +2,9 @@
 #include <ESP8266WebServer.h>
 #include "html_file.h"
 #include "secrets.h"
+#include <FS.h>
 
 ESP8266WebServer server(80);
-
-void handleRoot() {
-  server.send_P(200, "text/html", htmlPage);
-}
-
-void handleClick() {
-  String textarea = server.arg("textarea");
-  String checkbox = server.arg("checkbox");
-
-  Serial.print("Textarea: ");
-  Serial.println(textarea);
-  Serial.print("Checkbox: ");
-  Serial.println(checkbox);
-
-  String response = "Data received: " + textarea + " | Checkbox: " + checkbox;
-  server.send(200, "text/plain", response);
-}
 
 void setup() {
   Serial.begin(115200);
@@ -41,8 +25,56 @@ void setup() {
 
   server.begin();
   Serial.println("Web server started");
+
+  if (!SPIFFS.begin()) {
+    Serial.println("SPIFFS Mount Failed");
+    return;
+  }
+
+  loadMacro("1");
 }
 
 void loop() {
   server.handleClient();
+}
+
+void handleRoot() {
+  server.send_P(200, "text/html", htmlPage);
+}
+
+void saveMacro(String preset, String macro) {
+  File file = SPIFFS.open("/macro" + preset + ".txt", "w");
+  if (!file) {
+    Serial.println("Failed to open file for writing");
+    return;
+  }
+
+  file.print(macro);
+  file.close();
+
+  Serial.println("Macro #" + preset + " saved to SPIFFS");
+}
+
+String loadMacro(String preset) {
+  File file = SPIFFS.open("/macro" + preset + ".txt", "r");
+  if (!file) return "";
+
+  String macro = file.readString();
+  file.close();
+
+  Serial.println("Macro #" + preset + "read from SPIFFS:");
+  Serial.println(macro);
+
+  return macro;
+}
+
+void handleClick() {
+  String macro1 = server.arg("macro1");
+  saveMacro("1", macro1);
+
+  Serial.print("Macro #1:");
+  Serial.println(macro1);
+
+  String response = macro1;
+  server.send(200, "text/plain", response);
 }

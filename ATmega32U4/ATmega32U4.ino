@@ -9,6 +9,7 @@ void setup() {
 void loop() {
   if (Serial1.available()) {
     String received = Serial1.readStringUntil('\n');
+    // String received = Serial1.readString();
     received.trim();
     Serial.print("Received: ");
     Serial.println(received);
