@@ -1,0 +1,28 @@
+# Ignore compiled files
+*.hex
+*.elf
+
+# Ignore build and temporary files
+*.bin
+*.o
+*.d
+*.eep
+*.map
+
+# Ignore core and library dependencies (if any)
+build/
+lib_deps/
+
+# Ignore backup and temporary files
+*.bak
+*.tmp
+*.swp
+*.swo
+
+# Ignore MacOS and Windows system files
+.DS_Store
+Thumbs.db
+
+# Ignore secrets or configuration files
+secrets.h
+config.h

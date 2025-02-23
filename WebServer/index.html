@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>ESP8266 Web Server</title>
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=2"
+        />
+        <link rel="stylesheet" href="index.css" />
+    </head>
+
+    <body>
+        <main>
+            <h1>ESP8266 Web Server</h1>
+
+            <form onsubmit="return sendFormData();">
+                <div id="form-container">
+                    <div class="flex-column gap-05 w-100p">
+                        <label for="textarea">Macro #1:</label>
+                        <textarea id="textarea" name="textarea"></textarea>
+                        <!-- <input type="text" id="textinput" name="textinput" /><br /><br /> -->
+                    </div>
+
+                    <div class="flex-row gap-05">
+                        <label for="checkbox">Enabled</label>
+                        <input type="checkbox" id="checkbox" name="checkbox" value="on" />
+                    </div>
+
+                    <button type="submit">Save</button>
+                </div>
+            </form>
+
+            <div id="response-container">
+                <div id="response-title">Server response</div>
+                <div id="response-content">No response yet</div>
+            </div>
+        </main>
+
+        <script src="index.js"></script>
+    </body>
+</html>
