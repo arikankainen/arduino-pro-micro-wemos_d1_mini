@@ -47,16 +47,36 @@ main {
 }
 
 input[type='text'],
-input[type='checkbox'],
 textarea {
     background-color: #222;
     border: 1px solid #444;
     border-radius: 3px;
+    padding: 5px;
 }
 
 textarea {
     width: 100%;
     height: 80px;
+
+    scrollbar-color: #555 #333; /* For Firefox (thumb, track) */
+}
+
+textarea::-webkit-scrollbar-track {
+    background: #333; /* Dark track */
+}
+
+textarea::-webkit-scrollbar-thumb {
+    background: #555; /* Dark thumb (the draggable part) */
+}
+
+textarea::-webkit-scrollbar-thumb:hover {
+    background: #777; /* Lighter thumb on hover */
+}
+
+textarea:focus,
+input:focus {
+    border-color: #666; /* Green border when focused */
+    outline: none; /* Remove the default outline */
 }
 
 button {
@@ -85,11 +105,11 @@ button {
     font-size: 14px;
 }
 
-#response-content {
-    white-space: pre;
-    font-family: monospace;
-    color: #999;
-    font-size: 12px;
+#response-log {
+    background-color: #282828;
+    color: #888;
+    height: 150px;
+    font-family: 'Courier New', Courier, monospace;
 }
 
 .flex-row {
@@ -128,43 +148,89 @@ button {
         <main>
             <h1>ESP8266 Web Server</h1>
 
-            <form onsubmit="return sendFormData();">
-                <div id="form-container">
-                    <div class="flex-column gap-05 w-100p">
-                        <label for="macro1">Macro #1:</label>
-                        <textarea id="macro1" name="macro1"></textarea>
-                        <!-- <input type="text" id="textinput" name="textinput" /><br /><br /> -->
-                    </div>
-
-                    <button type="submit">Save</button>
+            <div id="form-container">
+                <div class="flex-column gap-05 w-100p">
+                    <label for="preset1">Preset #1:</label>
+                    <textarea id="preset1" name="preset1"></textarea>
                 </div>
-            </form>
+
+                <button onclick="savePreset(1)">Save</button>
+            </div>
+
+            <div id="form-container">
+                <div class="flex-column gap-05 w-100p">
+                    <label for="preset2">Preset #2:</label>
+                    <textarea id="preset2" name="preset2"></textarea>
+                </div>
+
+                <button onclick="savePreset(2)">Save</button>
+            </div>
 
             <div id="response-container">
                 <div id="response-title">Server response</div>
-                <div id="response-content">No response yet</div>
+                <textarea id="response-log" readonly></textarea>
             </div>
         </main>
 
         <script>
-function sendFormData() {
-    const macro1 = document.getElementById('macro1').value;
+async function savePreset(preset) {
+    const content = document.getElementById('preset' + preset).value;
+    const data = JSON.stringify({ preset: preset.toString(), content });
 
-    const xhttp = new XMLHttpRequest();
-    xhttp.open('POST', '/click', true);
-    xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    try {
+        const response = await fetch('/save_preset', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: data,
+        });
 
-    xhttp.onload = function () {
-        if (xhttp.status == 200) {
-            document.getElementById('response-content').innerHTML = xhttp.responseText;
-        }
-    };
-
-    const data = 'macro1=' + encodeURIComponent(macro1);
-    xhttp.send(data);
-
-    return false;
+        const responseText = await response.text();
+        log(responseText);
+    } catch (error) {
+        console.error('Error:', error);
+        log('Failed to save preset #' + preset);
+    }
 }
+
+async function getPreset(preset) {
+    const data = JSON.stringify({ preset: preset.toString() });
+
+    try {
+        const response = await fetch('/get_preset', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: data,
+        });
+
+        const responseText = await response.text();
+        document.getElementById('preset' + preset).value = responseText;
+    } catch (error) {
+        console.error('Error:', error);
+        log('Failed to load preset #' + preset);
+    }
+}
+
+function log(newText) {
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    const formattedDate = `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
+
+    const textarea = document.getElementById('response-log');
+    const lineBreak = textarea.value ? '\n' : '';
+    const logEntry = `${lineBreak}[${formattedDate}] ${newText}`;
+    textarea.value += logEntry;
+    textarea.scrollTop = textarea.scrollHeight;
+}
+
+(async () => {
+    await getPreset(1);
+    await getPreset(2);
+})();
 </script>
     </body>
 </html>
