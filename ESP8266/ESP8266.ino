@@ -88,6 +88,8 @@ void handleSavePreset() {
         String content = doc["content"];
         savePreset(preset, content);
 
+        sendPresetToSerial(preset);
+
         server.send(200, "text/plain", "Macro #" + preset + " saved!");
     } else {
         server.send(400, "text/plain", "No data received");
@@ -113,4 +115,11 @@ void handleGetPreset() {
     } else {
         server.send(400, "text/plain", "No data received");
     }
+}
+
+void sendPresetToSerial(String preset) {
+    String content = loadPreset(preset);
+    Serial.println("###START###");
+    Serial.println(content);
+    Serial.println("###END###");
 }
