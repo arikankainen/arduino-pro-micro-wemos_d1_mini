@@ -6,6 +6,10 @@ void setupServer() {
     Serial.println("Web server started");
 }
 
+void checkServer() {
+    server.handleClient();
+}
+
 void handleRoot() {
     server.send_P(200, "text/html", htmlPage);
 }
@@ -25,8 +29,6 @@ void handleSavePreset() {
         String preset = doc["preset"];
         String content = doc["content"];
         savePreset(preset, content);
-
-        sendPresetToSerial(preset);
 
         server.send(200, "text/plain", "Macro #" + preset + " saved!");
     } else {

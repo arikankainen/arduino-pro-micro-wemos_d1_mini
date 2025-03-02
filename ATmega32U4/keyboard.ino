@@ -1,3 +1,3 @@
 void setupKeyboard() {
-    Keyboard.begin();
+    Keyboard.begin(KeyboardLayout_sv_SE);
 }

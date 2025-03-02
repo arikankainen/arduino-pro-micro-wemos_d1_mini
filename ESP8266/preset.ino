@@ -9,7 +9,7 @@ void savePreset(String preset, String content) {
     file.close();
 
     Serial.println("Preset #" + preset + " saved to SPIFFS");
-    Serial.println(content);
+    sendPresetSavedToSerial(preset);
 }
 
 String loadPreset(String preset) {
@@ -19,8 +19,6 @@ String loadPreset(String preset) {
     String content = file.readString();
     file.close();
 
-    Serial.println("Preset #" + preset + "read from SPIFFS:");
-    Serial.println(content);
-
+    Serial.println("Preset #" + preset + "read from SPIFFS");
     return content;
 }

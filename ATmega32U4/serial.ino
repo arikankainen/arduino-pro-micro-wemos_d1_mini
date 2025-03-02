@@ -8,8 +8,8 @@ void checkSerial() {
         String line = Serial1.readStringUntil('\n');
         line.trim();
 
-        Serial.print("Received: ");
-        Serial.println(line);
+        // Serial.print("Received: ");
+        // Serial.println(line);
 
         if (line == "###START###") {
             receiving = true;
@@ -69,14 +69,25 @@ void checkSerial() {
             lcd.setCursor(0, 1);
             lcd.print("Network...");
         }
+
+        if (line.indexOf("preset_saved=") != -1) {
+            String preset = line.substring(line.indexOf('=') + 1);
+            String text = "Preset #" + preset + " saved";
+            lcd.clear();
+            lcd.setCursor(0, 0);
+            lcd.print(text);
+            turnDisplayOn();
+            delay(2000);
+            getIpAddress();
+        }
     }
 }
 
 void dataReceived() {
-    Serial.println("*************************");
-    Serial.println(receivedData);
-    Serial.println("*************************");
-    // Keyboard.print(receivedData);
+    Keyboard.print(receivedData);
+    // Serial.println("*************************");
+    // Serial.println(receivedData);
+    // Serial.println("*************************");
 }
 
 void disableSerial1() {

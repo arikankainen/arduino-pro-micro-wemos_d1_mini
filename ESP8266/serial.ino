@@ -7,9 +7,9 @@ void checkSerial() {
         String line = Serial.readStringUntil('\n');
         line.trim();
 
-        Serial.print("<DATA>");
-        Serial.print(line);
-        Serial.println("</DATA>");
+        // Serial.print("<DATA>");
+        // Serial.print(line);
+        // Serial.println("</DATA>");
 
         if (line == "button_long=10") {
             handleDisplayButtonLongPress();
@@ -18,6 +18,12 @@ void checkSerial() {
         if (line == "get_ip_address") {
             if (wifiApMode) sendApModeIpAddress();
             else sendStationModeIpAddress();
+        }
+
+        if (line.indexOf("button=") != -1) {
+            String button = line.substring(line.indexOf('=') + 1);
+            uint8_t preset = button.toInt() + 1;
+            sendPresetToSerial(String(preset));
         }
     }
 }
@@ -31,4 +37,9 @@ void sendPresetToSerial(String preset) {
 
 void handleDisplayButtonLongPress() {
     toggleWifiMode();
+}
+
+void sendPresetSavedToSerial(String preset) {
+    Serial.print("preset_saved=");
+    Serial.println(preset);
 }
