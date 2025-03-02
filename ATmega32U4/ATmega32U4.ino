@@ -1,7 +1,9 @@
 #include <Keyboard.h>
 #include <LiquidCrystal_I2C.h>
 
-#define BOUNCE_DELAY 1000
+#define BOUNCE_DELAY 100
+#define DOUBLE_PRESS_MAX_DELAY 500
+#define HOLD_TIME 1000
 #define DISPLAY_ON_TIME 20000
 
 uint8_t keyPin[11];
@@ -9,9 +11,11 @@ bool keyPressed[11];
 bool keyLongPressed[11];
 unsigned long bounceTime[16] = { 0 };
 unsigned long backlightTurnedOnTime;
+unsigned long displayButtonPressedTime;
 
 String receivedData;
 bool receiving;
+bool serialDisabled;
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 void setup() {
@@ -60,11 +64,22 @@ void turnDisplayOn() {
 void disableSerial() {
     Serial.println("Serial1 disabled!");
     Serial1.end();
+    serialDisabled = true;
+
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Serial disabled");
 }
 
 void enableSerial() {
     Serial.println("Serial1 enabled!");
     Serial1.begin(115200);
+    serialDisabled = false;
+    getIpAddress();
+}
+
+void getIpAddress() {
+    Serial1.println("get_ip_address");
 }
 
 void checkButtons() {
@@ -73,17 +88,23 @@ void checkButtons() {
             sendButtonPress(i);
             keyPressed[i] = true;
             bounceTime[i] = millis();
-            if (i == 10) turnDisplayOn();
+
+            if (i == 10) {
+                if (displayButtonPressedTime + DOUBLE_PRESS_MAX_DELAY > millis()) {
+                    if (serialDisabled) enableSerial();
+                    else disableSerial();
+                }
+                turnDisplayOn();
+                displayButtonPressedTime = millis();
+            }
         }
 
-        if (!digitalRead(keyPin[i]) && keyPressed[i] && !keyLongPressed[i] && bounceTime[i] + BOUNCE_DELAY < millis()) {
-            if (i == 10) sendLongButtonPress(i);
-            if (i == 0) disableSerial();
+        if (!digitalRead(keyPin[i]) && keyPressed[i] && !keyLongPressed[i] && bounceTime[i] + BOUNCE_DELAY + HOLD_TIME < millis()) {
+            sendLongButtonPress(i);
             keyLongPressed[i] = true;
         }
 
         if (digitalRead(keyPin[i]) && keyPressed[i] && bounceTime[i] + BOUNCE_DELAY < millis()) {
-            if (i == 0) enableSerial();
             keyPressed[i] = false;
             keyLongPressed[i] = false;
             bounceTime[i] = millis();
@@ -92,6 +113,8 @@ void checkButtons() {
 }
 
 void checkDisplay() {
+    if (serialDisabled) return;
+
     if (backlightTurnedOnTime + DISPLAY_ON_TIME < millis()) {
         lcd.noBacklight();
     }
@@ -159,7 +182,7 @@ void checkSerial() {
         if (line.indexOf("station_connecting") != -1) {
             lcd.clear();
             lcd.setCursor(0, 0);
-            lcd.print("Connecting To");
+            lcd.print("Connecting to");
             lcd.setCursor(0, 1);
             lcd.print("Network...");
         }
