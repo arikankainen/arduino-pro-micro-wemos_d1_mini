@@ -37,15 +37,6 @@ main {
     justify-self: center;
 }
 
-#form-container {
-    display: flex;
-    margin-top: 1rem;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: flex-start;
-    gap: 1rem;
-}
-
 input[type='text'],
 textarea {
     background-color: #222;
@@ -141,6 +132,30 @@ button {
 .w-100p {
     width: 100%;
 }
+
+/*******/
+
+#presets-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.preset-container {
+    display: flex;
+    margin-top: 1rem;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.preset-name-and-button {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+}
 </style>
     </head>
 
@@ -148,23 +163,7 @@ button {
         <main>
             <h1>ESP8266 Web Server</h1>
 
-            <div id="form-container">
-                <div class="flex-column gap-05 w-100p">
-                    <label for="preset1">Preset #1:</label>
-                    <textarea id="preset1" name="preset1"></textarea>
-                </div>
-
-                <button onclick="savePreset(1)">Save</button>
-            </div>
-
-            <div id="form-container">
-                <div class="flex-column gap-05 w-100p">
-                    <label for="preset2">Preset #2:</label>
-                    <textarea id="preset2" name="preset2"></textarea>
-                </div>
-
-                <button onclick="savePreset(2)">Save</button>
-            </div>
+            <div id="presets-container"></div>
 
             <div id="response-container">
                 <div id="response-title">Server response</div>
@@ -227,9 +226,35 @@ function log(newText) {
     textarea.scrollTop = textarea.scrollHeight;
 }
 
+function createPresetElement(preset) {
+    const presetElement = document.createElement('div');
+    presetElement.className = 'preset-container';
+    presetElement.innerHTML = `
+        <div class="preset-name-and-button">
+            <label for="preset${preset}">Preset #${preset}</label>
+            <textarea id="preset${preset}" name="preset${preset}"></textarea>
+        </div>
+
+        <button onclick="savePreset(${preset})">Save</button>
+    `;
+
+    return presetElement;
+}
+
+function createPresets() {
+    const presetsContainer = document.getElementById('presets-container');
+
+    for (let i = 1; i <= 10; i++) {
+        presetsContainer.appendChild(createPresetElement(i));
+    }
+}
+
 (async () => {
-    await getPreset(1);
-    await getPreset(2);
+    createPresets();
+
+    for (let i = 1; i <= 10; i++) {
+        await getPreset(i);
+    }
 })();
 </script>
     </body>

@@ -13,23 +13,7 @@
         <main>
             <h1>ESP8266 Web Server</h1>
 
-            <div id="form-container">
-                <div class="flex-column gap-05 w-100p">
-                    <label for="preset1">Preset #1:</label>
-                    <textarea id="preset1" name="preset1"></textarea>
-                </div>
-
-                <button onclick="savePreset(1)">Save</button>
-            </div>
-
-            <div id="form-container">
-                <div class="flex-column gap-05 w-100p">
-                    <label for="preset2">Preset #2:</label>
-                    <textarea id="preset2" name="preset2"></textarea>
-                </div>
-
-                <button onclick="savePreset(2)">Save</button>
-            </div>
+            <div id="presets-container"></div>
 
             <div id="response-container">
                 <div id="response-title">Server response</div>

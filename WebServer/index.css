@@ -24,15 +24,6 @@ main {
     justify-self: center;
 }
 
-#form-container {
-    display: flex;
-    margin-top: 1rem;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: flex-start;
-    gap: 1rem;
-}
-
 input[type='text'],
 textarea {
     background-color: #222;
@@ -126,5 +117,29 @@ button {
 }
 
 .w-100p {
+    width: 100%;
+}
+
+/*******/
+
+#presets-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.preset-container {
+    display: flex;
+    margin-top: 1rem;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.preset-name-and-button {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
     width: 100%;
 }

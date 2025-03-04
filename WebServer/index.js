@@ -52,7 +52,33 @@ function log(newText) {
     textarea.scrollTop = textarea.scrollHeight;
 }
 
+function createPresetElement(preset) {
+    const presetElement = document.createElement('div');
+    presetElement.className = 'preset-container';
+    presetElement.innerHTML = `
+        <div class="preset-name-and-button">
+            <label for="preset${preset}">Preset #${preset}</label>
+            <textarea id="preset${preset}" name="preset${preset}"></textarea>
+        </div>
+
+        <button onclick="savePreset(${preset})">Save</button>
+    `;
+
+    return presetElement;
+}
+
+function createPresets() {
+    const presetsContainer = document.getElementById('presets-container');
+
+    for (let i = 1; i <= 10; i++) {
+        presetsContainer.appendChild(createPresetElement(i));
+    }
+}
+
 (async () => {
-    await getPreset(1);
-    await getPreset(2);
+    createPresets();
+
+    for (let i = 1; i <= 10; i++) {
+        await getPreset(i);
+    }
 })();
