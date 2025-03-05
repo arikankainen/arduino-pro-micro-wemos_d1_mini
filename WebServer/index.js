@@ -84,11 +84,11 @@ function createPresetElement(preset) {
 }
 
 function createNetworkElement(network, index) {
-    console.log({ selectedNetwork });
-    const presetElement = document.createElement('div');
-    presetElement.className = 'network-container';
-    presetElement.innerHTML = `
-        <div class="network-container-details" onclick="selectedNetwork = ${index}">
+    const networkElement = document.createElement('div');
+    networkElement.onclick = () => selectNetwork(index);
+    networkElement.className = 'network-container';
+    networkElement.innerHTML = `
+        <div class="network-container-details" onclick="selectNetwork(${index}, this)">
             <div>
                 SSID: ${network.ssid}
             </div>
@@ -104,7 +104,7 @@ function createNetworkElement(network, index) {
         </div>
     `;
 
-    return presetElement;
+    return networkElement;
 }
 
 function createPresets() {
@@ -119,7 +119,23 @@ function renderNetworks(networks) {
     const container = document.getElementById('networks-container');
 
     for (let i = 0; i < networks.length; i++) {
-        container.appendChild(createNetworkElement(networks[i]), i);
+        container.appendChild(createNetworkElement(networks[i], i));
+    }
+}
+
+function selectNetwork(index, element) {
+    console.log({ index });
+    const allNetworks = document.querySelectorAll('.network-container');
+    allNetworks.forEach((network) => network.classList.remove('selected'));
+
+    if (index !== selectedNetwork) {
+        const selectedElement = allNetworks[index];
+        if (selectedElement) {
+            selectedElement.classList.add('selected');
+        }
+        selectedNetwork = index;
+    } else {
+        selectedNetwork = null;
     }
 }
 

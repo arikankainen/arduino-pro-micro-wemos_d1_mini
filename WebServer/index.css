@@ -152,7 +152,6 @@ button {
 
 .network-container {
     display: flex;
-    margin-top: 1rem;
     justify-content: space-between;
     align-items: center;
     align-items: flex-start;
@@ -160,6 +159,7 @@ button {
     padding: 1rem;
     border-radius: 5px;
     border: 1px solid #333;
+    cursor: pointer;
 }
 
 .network-container-details {
@@ -167,4 +167,10 @@ button {
     flex-direction: column;
     font-size: 14px;
     gap: 2px;
+}
+
+.network-container.selected {
+    border: 1px solid #266626;
+    background-color: #263026;
+    transition: all 0.15s;
 }
