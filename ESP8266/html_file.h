@@ -162,6 +162,7 @@ button {
     <body>
         <main>
             <h1>ESP8266 Web Server</h1>
+            <button onclick="getNetworks()">Scan networks</button>
 
             <div id="presets-container"></div>
 
@@ -206,6 +207,20 @@ async function getPreset(preset) {
     } catch (error) {
         console.error('Error:', error);
         log('Failed to load preset #' + preset);
+    }
+}
+
+async function getNetworks() {
+    try {
+        const response = await fetch('/scan', {
+            method: 'GET',
+        });
+
+        const responseJson = await response.json();
+        console.log({ responseJson });
+    } catch (error) {
+        console.error('Error:', error);
+        log('Failed to get networks');
     }
 }
 

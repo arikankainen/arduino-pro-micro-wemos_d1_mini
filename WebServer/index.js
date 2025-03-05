@@ -1,3 +1,5 @@
+let selectedNetwork = null;
+
 async function savePreset(preset) {
     const content = document.getElementById('preset' + preset).value;
     const data = JSON.stringify({ preset: preset.toString(), content });
@@ -35,6 +37,20 @@ async function getPreset(preset) {
     }
 }
 
+async function getNetworks() {
+    try {
+        const response = await fetch('/scan', {
+            method: 'GET',
+        });
+
+        const responseJson = await response.json();
+        console.log({ responseJson });
+    } catch (error) {
+        console.error('Error:', error);
+        log('Failed to get networks');
+    }
+}
+
 function log(newText) {
     const now = new Date();
     const day = String(now.getDate()).padStart(2, '0');
@@ -67,11 +83,43 @@ function createPresetElement(preset) {
     return presetElement;
 }
 
+function createNetworkElement(network, index) {
+    console.log({ selectedNetwork });
+    const presetElement = document.createElement('div');
+    presetElement.className = 'network-container';
+    presetElement.innerHTML = `
+        <div class="network-container-details" onclick="selectedNetwork = ${index}">
+            <div>
+                SSID: ${network.ssid}
+            </div>
+            <div>
+                Channel: ${network.channel}
+            </div>
+            <div>
+                Signal Strength: ${network.signalStrength}
+            </div>
+            <div>
+                Encryption: ${network.encryption}
+            </div>
+        </div>
+    `;
+
+    return presetElement;
+}
+
 function createPresets() {
-    const presetsContainer = document.getElementById('presets-container');
+    const container = document.getElementById('presets-container');
 
     for (let i = 1; i <= 10; i++) {
-        presetsContainer.appendChild(createPresetElement(i));
+        container.appendChild(createPresetElement(i));
+    }
+}
+
+function renderNetworks(networks) {
+    const container = document.getElementById('networks-container');
+
+    for (let i = 0; i < networks.length; i++) {
+        container.appendChild(createNetworkElement(networks[i]), i);
     }
 }
 
@@ -81,4 +129,41 @@ function createPresets() {
     for (let i = 1; i <= 10; i++) {
         await getPreset(i);
     }
+
+    const networks = {
+        networks: [
+            {
+                ssid: 'family',
+                channel: 1,
+                signalStrength: '-89 dB (Very Poor)',
+                encryption: 'WPA2',
+            },
+            {
+                ssid: 'family',
+                channel: 1,
+                signalStrength: '-86 dB (Very Poor)',
+                encryption: 'WPA2',
+            },
+            {
+                ssid: 'DIRECT-73M2020 Series',
+                channel: 6,
+                signalStrength: '-47 dB (Excellent)',
+                encryption: 'WPA2',
+            },
+            {
+                ssid: 'BUFFALO',
+                channel: 6,
+                signalStrength: '-50 dB (Excellent)',
+                encryption: 'WPA2',
+            },
+            {
+                ssid: 'Koti_05CD',
+                channel: 7,
+                signalStrength: '-91 dB (Very Poor)',
+                encryption: 'WPA2',
+            },
+        ],
+    };
+
+    renderNetworks(networks.networks);
 })();
