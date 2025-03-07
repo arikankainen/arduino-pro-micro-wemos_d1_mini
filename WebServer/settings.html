@@ -24,7 +24,12 @@
             <div id="networks-container"></div>
 
             <div style="display: flex; gap: 1rem">
-                <input type="password" id="password" placeholder="Enter network password" />
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Enter network password"
+                    onkeyup="enableOrDisableConnectButton()"
+                />
                 <button id="connect" onclick="connect()">Connect</button>
                 <div id="connect-loader"></div>
             </div>

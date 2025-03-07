@@ -74,9 +74,24 @@ function createNetworkElement(network, index) {
                 </div>
             </div>
         </div>
+        <div class="network-container-connected" style="display: ${
+            network.connected ? 'block' : 'none'
+        };">Connected</div>
     `;
 
     return networkElement;
+}
+
+function enableOrDisableConnectButton() {
+    const selectedNetwork = networks?.[selectedNetworkIndex];
+    const ssid = selectedNetwork?.ssid;
+    const password = document.getElementById('password').value;
+
+    if (ssid && !!password?.trim()?.length) {
+        disabled('connect', false);
+    } else {
+        disabled('connect', true);
+    }
 }
 
 function loading(elementName, visible) {
@@ -111,51 +126,54 @@ function selectNetwork(index) {
     } else {
         selectedNetworkIndex = null;
     }
+
+    enableOrDisableConnectButton();
 }
 
 (async () => {
-    getNetworks();
+    // getNetworks();
+    enableOrDisableConnectButton();
 
-    // const responseJson = {
-    //     networks: [
-    //         {
-    //             ssid: 'family',
-    //             channel: 1,
-    //             signalStrength: '-89 dB (Very Poor)',
-    //             encryption: 'WPA2',
-    //             connected: false,
-    //         },
-    //         {
-    //             ssid: 'family',
-    //             channel: 1,
-    //             signalStrength: '-86 dB (Very Poor)',
-    //             encryption: 'WPA2',
-    //             connected: false,
-    //         },
-    //         {
-    //             ssid: 'DIRECT-73M2020 Series',
-    //             channel: 6,
-    //             signalStrength: '-47 dB (Excellent)',
-    //             encryption: 'WPA2',
-    //             connected: false,
-    //         },
-    //         {
-    //             ssid: 'BUFFALO',
-    //             channel: 6,
-    //             signalStrength: '-50 dB (Excellent)',
-    //             encryption: 'WPA2',
-    //             connected: true,
-    //         },
-    //         {
-    //             ssid: 'Koti_05CD',
-    //             channel: 7,
-    //             signalStrength: '-91 dB (Very Poor)',
-    //             encryption: 'WPA2',
-    //             connected: false,
-    //         },
-    //     ],
-    // };
+    const responseJson = {
+        networks: [
+            {
+                ssid: 'family',
+                channel: 1,
+                signalStrength: '-89 dB (Very Poor)',
+                encryption: 'WPA2',
+                connected: false,
+            },
+            {
+                ssid: 'family',
+                channel: 1,
+                signalStrength: '-86 dB (Very Poor)',
+                encryption: 'WPA2',
+                connected: false,
+            },
+            {
+                ssid: 'DIRECT-73M2020 Series',
+                channel: 6,
+                signalStrength: '-47 dB (Excellent)',
+                encryption: 'WPA2',
+                connected: false,
+            },
+            {
+                ssid: 'BUFFALO',
+                channel: 6,
+                signalStrength: '-50 dB (Excellent)',
+                encryption: 'WPA2',
+                connected: true,
+            },
+            {
+                ssid: 'Koti_05CD',
+                channel: 7,
+                signalStrength: '-91 dB (Very Poor)',
+                encryption: 'WPA2',
+                connected: false,
+            },
+        ],
+    };
 
-    // networks = responseJson.networks;
-    // renderNetworks(networks);
+    networks = responseJson.networks;
+    renderNetworks(networks);
 })();

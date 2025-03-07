@@ -243,6 +243,17 @@ button:disabled:active {
     border: 1px solid #2b4e83;
     background-color: rgb(36, 44, 54);
 }
+
+.network-container-connected {
+    border: 1px solid #247024;
+    background-color: #244424;
+    color: #94c094;
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 1px;
+    padding: 3px 5px;
+    border-radius: 5px;
+}
 </style>
     </head>
 
@@ -261,7 +272,12 @@ button:disabled:active {
             <div id="networks-container"></div>
 
             <div style="display: flex; gap: 1rem">
-                <input type="password" id="password" placeholder="Enter network password" />
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Enter network password"
+                    onkeyup="enableOrDisableConnectButton()"
+                />
                 <button id="connect" onclick="connect()">Connect</button>
                 <div id="connect-loader"></div>
             </div>
@@ -344,9 +360,24 @@ function createNetworkElement(network, index) {
                 </div>
             </div>
         </div>
+        <div class="network-container-connected" style="display: ${
+            network.connected ? 'block' : 'none'
+        };">Connected</div>
     `;
 
     return networkElement;
+}
+
+function enableOrDisableConnectButton() {
+    const selectedNetwork = networks?.[selectedNetworkIndex];
+    const ssid = selectedNetwork?.ssid;
+    const password = document.getElementById('password').value;
+
+    if (ssid && !!password?.trim()?.length) {
+        disabled('connect', false);
+    } else {
+        disabled('connect', true);
+    }
 }
 
 function loading(elementName, visible) {
@@ -381,10 +412,13 @@ function selectNetwork(index) {
     } else {
         selectedNetworkIndex = null;
     }
+
+    enableOrDisableConnectButton();
 }
 
 (async () => {
     getNetworks();
+    enableOrDisableConnectButton();
 
     // const responseJson = {
     //     networks: [
