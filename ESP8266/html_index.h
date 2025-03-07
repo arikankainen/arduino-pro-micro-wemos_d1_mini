@@ -5,7 +5,7 @@ const char indexPage[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
 <html>
     <head>
-        <title>ESP8266 Web Server</title>
+        <title>Presets</title>
         <meta
             name="viewport"
             content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=2"
@@ -38,6 +38,7 @@ main {
 }
 
 input[type='text'],
+input[type='password'],
 textarea {
     background-color: #222;
     border: 1px solid #444;
@@ -66,8 +67,15 @@ textarea::-webkit-scrollbar-thumb:hover {
 
 textarea:focus,
 input:focus {
-    border-color: #666; /* Green border when focused */
-    outline: none; /* Remove the default outline */
+    border-color: #666;
+    outline: none;
+}
+
+textarea:disabled,
+input:disabled {
+    border-color: #444;
+    background-color: #333;
+    color: #666;
 }
 
 button {
@@ -77,6 +85,105 @@ button {
     color: #ccc;
     padding: 5px 10px;
     cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+button:hover {
+    background-color: #666;
+}
+
+button:active {
+    transform: translateY(1px);
+}
+
+button:disabled {
+    background-color: #333;
+    color: #888;
+    cursor: default;
+}
+
+button:disabled:hover {
+    background-color: #333;
+    color: #888;
+}
+
+button:disabled:active {
+    transform: none;
+}
+
+.loader {
+    align-self: center;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #aaa;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.tab-container {
+    display: flex;
+    border-bottom: 1px solid #444;
+}
+
+.tab {
+    font-size: 18px;
+    font-weight: 500;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    padding: 5px 15px;
+    line-height: 1;
+}
+
+.active-tab {
+    color: #bbb;
+    border-bottom: 1px solid #bbb;
+    margin-bottom: -1px;
+    cursor: default;
+}
+
+.inactive-tab {
+    color: #888;
+}
+
+.inactive-tab:hover {
+    color: #aaa;
+}
+
+/*** PRESETS ***/
+
+#presets-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.preset-container {
+    display: flex;
+    margin-top: 1rem;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.preset-name-and-button {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
 }
 
 #response-container {
@@ -103,59 +210,7 @@ button {
     font-family: 'Courier New', Courier, monospace;
 }
 
-.flex-row {
-    display: flex;
-    flex-direction: row;
-}
-
-.flex-column {
-    display: flex;
-    flex-direction: column;
-}
-
-.gap-05 {
-    gap: 0.5rem;
-}
-
-.gap-1 {
-    gap: 1rem;
-}
-
-.align-center {
-    align-items: center;
-}
-
-.justify-center {
-    justify-content: center;
-}
-
-.w-100p {
-    width: 100%;
-}
-
-/*******/
-
-#presets-container {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.preset-container {
-    display: flex;
-    margin-top: 1rem;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: flex-start;
-    gap: 1rem;
-}
-
-.preset-name-and-button {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    width: 100%;
-}
+/*** SETTINGS ***/
 
 #networks-container {
     display: flex;
@@ -193,11 +248,11 @@ button {
 
     <body>
         <main>
-            <h1>ESP8266 Web Server</h1>
-            <a href="/settings">Settings</a>
-            <button onclick="getNetworks()">Scan networks</button>
+            <div class="tab-container">
+                <span class="tab active-tab">Presets</span>
+                <a href="/settings" class="tab inactive-tab">Settings</a>
+            </div>
 
-            <div id="networks-container"></div>
             <div id="presets-container"></div>
 
             <div id="response-container">
@@ -207,8 +262,6 @@ button {
         </main>
 
         <script>
-let selectedNetwork = null;
-
 async function savePreset(preset) {
     const content = document.getElementById('preset' + preset).value;
     const data = JSON.stringify({ preset: preset.toString(), content });
@@ -246,20 +299,6 @@ async function getPreset(preset) {
     }
 }
 
-async function getNetworks() {
-    try {
-        const response = await fetch('/scan', {
-            method: 'GET',
-        });
-
-        const responseJson = await response.json();
-        console.log({ responseJson });
-    } catch (error) {
-        console.error('Error:', error);
-        log('Failed to get networks');
-    }
-}
-
 function log(newText) {
     const now = new Date();
     const day = String(now.getDate()).padStart(2, '0');
@@ -292,62 +331,11 @@ function createPresetElement(preset) {
     return presetElement;
 }
 
-function createNetworkElement(network, index) {
-    const networkElement = document.createElement('div');
-    networkElement.onclick = () => selectNetwork(index);
-    networkElement.className = 'network-container';
-    networkElement.innerHTML = `
-        <div class="network-container-details" onclick="selectNetwork(${index}, this)">
-            <div style="display: flex; gap: 5px;">
-                <div style="display: flex; flex-direction: column; gap: 2px;">    
-                    <div style="text-align: right;">SSID:</div>
-                    <div style="text-align: right;">Channel:</div>
-                    <div style="text-align: right;">Signal:</div>
-                    <div style="text-align: right;">Encryption:</div>
-                </div>
-                
-                <div style="display: flex; flex-direction: column; gap: 2px;">    
-                    <div><strong>${network.ssid}</strong></div>
-                    <div><strong>${network.channel}</strong></div>
-                    <div><strong>${network.signalStrength}</strong></div>
-                    <div><strong>${network.encryption}</strong></div>
-                </div>
-            </div>
-        </div>
-    `;
-
-    return networkElement;
-}
-
 function createPresets() {
     const container = document.getElementById('presets-container');
 
     for (let i = 1; i <= 10; i++) {
         container.appendChild(createPresetElement(i));
-    }
-}
-
-function renderNetworks(networks) {
-    const container = document.getElementById('networks-container');
-
-    for (let i = 0; i < networks.length; i++) {
-        container.appendChild(createNetworkElement(networks[i], i));
-    }
-}
-
-function selectNetwork(index, element) {
-    console.log({ index });
-    const allNetworks = document.querySelectorAll('.network-container');
-    allNetworks.forEach((network) => network.classList.remove('selected'));
-
-    if (index !== selectedNetwork) {
-        const selectedElement = allNetworks[index];
-        if (selectedElement) {
-            selectedElement.classList.add('selected');
-        }
-        selectedNetwork = index;
-    } else {
-        selectedNetwork = null;
     }
 }
 
@@ -357,43 +345,6 @@ function selectNetwork(index, element) {
     for (let i = 1; i <= 10; i++) {
         await getPreset(i);
     }
-
-    const networks = {
-        networks: [
-            {
-                ssid: 'family',
-                channel: 1,
-                signalStrength: '-89 dB (Very Poor)',
-                encryption: 'WPA2',
-            },
-            {
-                ssid: 'family',
-                channel: 1,
-                signalStrength: '-86 dB (Very Poor)',
-                encryption: 'WPA2',
-            },
-            {
-                ssid: 'DIRECT-73M2020 Series',
-                channel: 6,
-                signalStrength: '-47 dB (Excellent)',
-                encryption: 'WPA2',
-            },
-            {
-                ssid: 'BUFFALO',
-                channel: 6,
-                signalStrength: '-50 dB (Excellent)',
-                encryption: 'WPA2',
-            },
-            {
-                ssid: 'Koti_05CD',
-                channel: 7,
-                signalStrength: '-91 dB (Very Poor)',
-                encryption: 'WPA2',
-            },
-        ],
-    };
-
-    renderNetworks(networks.networks);
 })();
 </script>
     </body>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>ESP8266 Web Server</title>
+        <title>Settings</title>
         <meta
             name="viewport"
             content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=2"
@@ -11,16 +11,22 @@
 
     <body>
         <main>
-            <h1>ESP8266 Web Server</h1>
-            <a href="/">Back</a>
-            <button onclick="getNetworks()">Scan networks</button>
+            <div class="tab-container">
+                <a href="/" class="tab inactive-tab">Presets</a>
+                <span class="tab active-tab">Settings</span>
+            </div>
+
+            <div style="display: flex; gap: 1rem">
+                <button id="refresh" onclick="getNetworks()">Refresh networks</button>
+                <div id="refresh-loader"></div>
+            </div>
 
             <div id="networks-container"></div>
-            <div id="presets-container"></div>
 
-            <div id="response-container">
-                <div id="response-title">Server response</div>
-                <textarea id="response-log" readonly></textarea>
+            <div style="display: flex; gap: 1rem">
+                <input type="password" id="password" placeholder="Enter network password" />
+                <button id="connect" onclick="connect()">Connect</button>
+                <div id="connect-loader"></div>
             </div>
         </main>
 

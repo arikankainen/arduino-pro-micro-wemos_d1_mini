@@ -25,6 +25,7 @@ main {
 }
 
 input[type='text'],
+input[type='password'],
 textarea {
     background-color: #222;
     border: 1px solid #444;
@@ -53,8 +54,15 @@ textarea::-webkit-scrollbar-thumb:hover {
 
 textarea:focus,
 input:focus {
-    border-color: #666; /* Green border when focused */
-    outline: none; /* Remove the default outline */
+    border-color: #666;
+    outline: none;
+}
+
+textarea:disabled,
+input:disabled {
+    border-color: #444;
+    background-color: #333;
+    color: #666;
 }
 
 button {
@@ -64,6 +72,105 @@ button {
     color: #ccc;
     padding: 5px 10px;
     cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+button:hover {
+    background-color: #666;
+}
+
+button:active {
+    transform: translateY(1px);
+}
+
+button:disabled {
+    background-color: #333;
+    color: #888;
+    cursor: default;
+}
+
+button:disabled:hover {
+    background-color: #333;
+    color: #888;
+}
+
+button:disabled:active {
+    transform: none;
+}
+
+.loader {
+    align-self: center;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #aaa;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.tab-container {
+    display: flex;
+    border-bottom: 1px solid #444;
+}
+
+.tab {
+    font-size: 18px;
+    font-weight: 500;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    padding: 5px 15px;
+    line-height: 1;
+}
+
+.active-tab {
+    color: #bbb;
+    border-bottom: 1px solid #bbb;
+    margin-bottom: -1px;
+    cursor: default;
+}
+
+.inactive-tab {
+    color: #888;
+}
+
+.inactive-tab:hover {
+    color: #aaa;
+}
+
+/*** PRESETS ***/
+
+#presets-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.preset-container {
+    display: flex;
+    margin-top: 1rem;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.preset-name-and-button {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
 }
 
 #response-container {
@@ -90,59 +197,7 @@ button {
     font-family: 'Courier New', Courier, monospace;
 }
 
-.flex-row {
-    display: flex;
-    flex-direction: row;
-}
-
-.flex-column {
-    display: flex;
-    flex-direction: column;
-}
-
-.gap-05 {
-    gap: 0.5rem;
-}
-
-.gap-1 {
-    gap: 1rem;
-}
-
-.align-center {
-    align-items: center;
-}
-
-.justify-center {
-    justify-content: center;
-}
-
-.w-100p {
-    width: 100%;
-}
-
-/*******/
-
-#presets-container {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.preset-container {
-    display: flex;
-    margin-top: 1rem;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: flex-start;
-    gap: 1rem;
-}
-
-.preset-name-and-button {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    width: 100%;
-}
+/*** SETTINGS ***/
 
 #networks-container {
     display: flex;

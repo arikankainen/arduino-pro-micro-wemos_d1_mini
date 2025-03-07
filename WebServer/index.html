@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>ESP8266 Web Server</title>
+        <title>Presets</title>
         <meta
             name="viewport"
             content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=2"
@@ -11,11 +11,11 @@
 
     <body>
         <main>
-            <h1>ESP8266 Web Server</h1>
-            <a href="/settings">Settings</a>
-            <button onclick="getNetworks()">Scan networks</button>
+            <div class="tab-container">
+                <span class="tab active-tab">Presets</span>
+                <a href="/settings" class="tab inactive-tab">Settings</a>
+            </div>
 
-            <div id="networks-container"></div>
             <div id="presets-container"></div>
 
             <div id="response-container">

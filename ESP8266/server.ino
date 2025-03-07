@@ -22,18 +22,25 @@ void handleSettings() {
 
 void handleScan() {
     int networksFound = WiFi.scanNetworks();
-    size_t jsonSize = 128 + (networksFound * 100);  // Estimate required size dynamically
+    String currentSSID = WiFi.SSID();
+    int currentChannel = WiFi.channel();
+
+    size_t jsonSize = 128 + (networksFound * 110);  // Estimate required size dynamically
     DynamicJsonDocument doc(jsonSize);
+
     JsonArray networks = doc.createNestedArray("networks");
 
     for (int i = 0; i < networksFound; i++) {
+        String ssid = WiFi.SSID(i);
+        int channel = WiFi.channel(i);
         int rssi = WiFi.RSSI(i);
 
         JsonObject net = networks.createNestedObject();
-        net["ssid"] = WiFi.SSID(i);
-        net["channel"] = WiFi.channel(i);
+        net["ssid"] = ssid;
+        net["channel"] = channel;
         net["signalStrength"] = String(rssi) + " dB (" + getSignalQuality(rssi) + ")";
         net["encryption"] = getEncryptionTypeName(WiFi.encryptionType(i));
+        net["connected"] = (ssid == currentSSID && channel == currentChannel);
     }
 
     String jsonString;
