@@ -1,5 +1,6 @@
 void setupServer() {
     server.on("/", handleRoot);
+    server.on("/settings", handleSettings);
     server.on("/scan", HTTP_GET, handleScan);
     server.on("/save_preset", HTTP_POST, handleSavePreset);
     server.on("/get_preset", HTTP_POST, handleGetPreset);
@@ -12,7 +13,11 @@ void checkServer() {
 }
 
 void handleRoot() {
-    server.send_P(200, "text/html", htmlPage);
+    server.send_P(200, "text/html", indexPage);
+}
+
+void handleSettings() {
+    server.send_P(200, "text/html", settingsPage);
 }
 
 void handleScan() {

@@ -14,34 +14,59 @@ def escape_quotes(content):
     """ Escapes quotes in the content for C++ raw literals. """
     return content.replace('\"', '\"')
 
-def generate_cpp_header(html_content, css_content, js_content):
-    """ Combines HTML, CSS, and JS into a single C++ header file. """
+def generate_index_cpp_header():
+    index_html = read_file("WebServer/index.html")
+    styles_css = read_file("WebServer/styles.css")
+    index_js = read_file("WebServer/index.js")
     
-    if css_content:
-        html_content = html_content.replace('<link rel="stylesheet" href="index.css" />', f"<style>\n{css_content}\n</style>")
+    if styles_css:
+        index_html = index_html.replace('<link rel="stylesheet" href="styles.css" />', f"<style>\n{styles_css}\n</style>")
 
-    if js_content:
-        html_content = html_content.replace('<script src="index.js"></script>', f"<script>\n{js_content}\n</script>")
+    if index_js:
+        index_html = index_html.replace('<script src="index.js"></script>', f"<script>\n{index_js}\n</script>")
 
-    cpp_content = '''#ifndef HTML_FILE_H
-#define HTML_FILE_H
+    cpp_content = '''#ifndef HTML_INDEX_H
+#define HTML_INDEX_H
 
-const char htmlPage[] PROGMEM = R"rawliteral(
-''' + html_content + '''
+const char indexPage[] PROGMEM = R"rawliteral(
+''' + index_html + '''
 )rawliteral";
 
-#endif // HTML_FILE_H
+#endif // HTML_INDEX_H
+'''
+    return cpp_content
+
+def generate_settings_cpp_header():
+    settings_html = read_file("WebServer/settings.html")
+    styles_css = read_file("WebServer/styles.css")
+    settings_js = read_file("WebServer/settings.js")
+    
+    if styles_css:
+        settings_html = settings_html.replace('<link rel="stylesheet" href="styles.css" />', f"<style>\n{styles_css}\n</style>")
+
+    if settings_js:
+        settings_html = settings_html.replace('<script src="settings.js"></script>', f"<script>\n{settings_js}\n</script>")
+
+    cpp_content = '''#ifndef HTML_SETTINGS_H
+#define HTML_SETTINGS_H
+
+const char settingsPage[] PROGMEM = R"rawliteral(
+''' + settings_html + '''
+)rawliteral";
+
+#endif // HTML_SETTINGS_H
 '''
     return cpp_content
 
 if __name__ == "__main__":
-    html_content = read_file("WebServer/index.html")
-    css_content = read_file("WebServer/index.css")
-    js_content = read_file("WebServer/index.js")
+    index_content = generate_index_cpp_header()
+    settings_content = generate_settings_cpp_header()
 
-    cpp_content = generate_cpp_header(html_content, css_content, js_content)
+    with open("ESP8266/html_index.h", "w", encoding="utf-8") as output_file:
+        output_file.write(index_content)
+    print("Successfully generated 'html_index.h'")
 
-    with open("ESP8266/html_file.h", "w", encoding="utf-8") as output_file:
-        output_file.write(cpp_content)
+    with open("ESP8266/html_settings.h", "w", encoding="utf-8") as output_file:
+        output_file.write(settings_content)
+    print("Successfully generated 'html_settings.h'")
 
-    print("Successfully generated 'html_file.h'")

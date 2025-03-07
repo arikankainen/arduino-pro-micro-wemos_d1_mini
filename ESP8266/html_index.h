@@ -1,7 +1,7 @@
-#ifndef HTML_FILE_H
-#define HTML_FILE_H
+#ifndef HTML_INDEX_H
+#define HTML_INDEX_H
 
-const char htmlPage[] PROGMEM = R"rawliteral(
+const char indexPage[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
 <html>
     <head>
@@ -156,14 +156,48 @@ button {
     gap: 0.5rem;
     width: 100%;
 }
+
+#networks-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.network-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    align-items: flex-start;
+    background-color: #262626;
+    padding: 0.5rem;
+    border-radius: 5px;
+    border: 1px solid #333;
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s;
+}
+
+.network-container-details {
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+    gap: 1px;
+    pointer-events: none;
+}
+
+.network-container.selected {
+    border: 1px solid #2b4e83;
+    background-color: rgb(36, 44, 54);
+}
 </style>
     </head>
 
     <body>
         <main>
             <h1>ESP8266 Web Server</h1>
+            <a href="/settings">Settings</a>
             <button onclick="getNetworks()">Scan networks</button>
 
+            <div id="networks-container"></div>
             <div id="presets-container"></div>
 
             <div id="response-container">
@@ -173,6 +207,8 @@ button {
         </main>
 
         <script>
+let selectedNetwork = null;
+
 async function savePreset(preset) {
     const content = document.getElementById('preset' + preset).value;
     const data = JSON.stringify({ preset: preset.toString(), content });
@@ -256,11 +292,62 @@ function createPresetElement(preset) {
     return presetElement;
 }
 
+function createNetworkElement(network, index) {
+    const networkElement = document.createElement('div');
+    networkElement.onclick = () => selectNetwork(index);
+    networkElement.className = 'network-container';
+    networkElement.innerHTML = `
+        <div class="network-container-details" onclick="selectNetwork(${index}, this)">
+            <div style="display: flex; gap: 5px;">
+                <div style="display: flex; flex-direction: column; gap: 2px;">    
+                    <div style="text-align: right;">SSID:</div>
+                    <div style="text-align: right;">Channel:</div>
+                    <div style="text-align: right;">Signal:</div>
+                    <div style="text-align: right;">Encryption:</div>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 2px;">    
+                    <div><strong>${network.ssid}</strong></div>
+                    <div><strong>${network.channel}</strong></div>
+                    <div><strong>${network.signalStrength}</strong></div>
+                    <div><strong>${network.encryption}</strong></div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    return networkElement;
+}
+
 function createPresets() {
-    const presetsContainer = document.getElementById('presets-container');
+    const container = document.getElementById('presets-container');
 
     for (let i = 1; i <= 10; i++) {
-        presetsContainer.appendChild(createPresetElement(i));
+        container.appendChild(createPresetElement(i));
+    }
+}
+
+function renderNetworks(networks) {
+    const container = document.getElementById('networks-container');
+
+    for (let i = 0; i < networks.length; i++) {
+        container.appendChild(createNetworkElement(networks[i], i));
+    }
+}
+
+function selectNetwork(index, element) {
+    console.log({ index });
+    const allNetworks = document.querySelectorAll('.network-container');
+    allNetworks.forEach((network) => network.classList.remove('selected'));
+
+    if (index !== selectedNetwork) {
+        const selectedElement = allNetworks[index];
+        if (selectedElement) {
+            selectedElement.classList.add('selected');
+        }
+        selectedNetwork = index;
+    } else {
+        selectedNetwork = null;
     }
 }
 
@@ -270,10 +357,47 @@ function createPresets() {
     for (let i = 1; i <= 10; i++) {
         await getPreset(i);
     }
+
+    const networks = {
+        networks: [
+            {
+                ssid: 'family',
+                channel: 1,
+                signalStrength: '-89 dB (Very Poor)',
+                encryption: 'WPA2',
+            },
+            {
+                ssid: 'family',
+                channel: 1,
+                signalStrength: '-86 dB (Very Poor)',
+                encryption: 'WPA2',
+            },
+            {
+                ssid: 'DIRECT-73M2020 Series',
+                channel: 6,
+                signalStrength: '-47 dB (Excellent)',
+                encryption: 'WPA2',
+            },
+            {
+                ssid: 'BUFFALO',
+                channel: 6,
+                signalStrength: '-50 dB (Excellent)',
+                encryption: 'WPA2',
+            },
+            {
+                ssid: 'Koti_05CD',
+                channel: 7,
+                signalStrength: '-91 dB (Very Poor)',
+                encryption: 'WPA2',
+            },
+        ],
+    };
+
+    renderNetworks(networks.networks);
 })();
 </script>
     </body>
 </html>
 )rawliteral";
 
-#endif // HTML_FILE_H
+#endif // HTML_INDEX_H

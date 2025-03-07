@@ -4,7 +4,8 @@
 #include <ArduinoJson.h>
 #include <Wire.h>
 
-#include "html_file.h"
+#include "html_index.h"
+#include "html_settings.h"
 #include "secrets.h"
 
 ESP8266WebServer server(80);
