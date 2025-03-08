@@ -3,6 +3,7 @@
     margin: 0;
     padding: 0;
     color: #ccc;
+    font-family: 'Open Sans', sans-serif;
 }
 
 body {
@@ -122,14 +123,15 @@ button:disabled:active {
 .tab-container {
     display: flex;
     border-bottom: 1px solid #444;
+    margin-bottom: 1rem;
 }
 
 .tab {
-    font-size: 18px;
-    font-weight: 500;
+    font-size: 20px;
+    font-weight: 800;
     text-decoration: none;
     text-transform: uppercase;
-    letter-spacing: 4px;
+    letter-spacing: 3px;
     padding: 5px 15px;
     line-height: 1;
 }
@@ -138,15 +140,22 @@ button:disabled:active {
     color: #bbb;
     border-bottom: 1px solid #bbb;
     margin-bottom: -1px;
-    cursor: default;
 }
 
 .inactive-tab {
     color: #888;
 }
 
+.active-tab:hover {
+    color: #ddd;
+}
+
 .inactive-tab:hover {
     color: #aaa;
+}
+
+.line {
+    border-bottom: 1px solid #333;
 }
 
 /*** PRESETS ***/
@@ -216,6 +225,7 @@ button:disabled:active {
     border: 1px solid #333;
     cursor: pointer;
     transition: background-color 0.15s, border-color 0.15s;
+    gap: 10px;
 }
 
 .network-container-details {
@@ -231,13 +241,147 @@ button:disabled:active {
     background-color: rgb(36, 44, 54);
 }
 
-.network-container-connected {
+.network-connected {
     border: 1px solid #247024;
     background-color: #244424;
     color: #94c094;
     text-transform: uppercase;
     font-size: 10px;
     letter-spacing: 1px;
-    padding: 3px 5px;
-    border-radius: 5px;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+.network-name {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.network-info {
+    display: flex;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 400;
+    color: #888;
+}
+
+.disconnect-button {
+    background-color: #955;
+    border: none;
+    border-radius: 3px;
+    color: #fcc;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.disconnect-button:hover {
+    background-color: #a66;
+}
+
+.disconnect-button:active {
+    transform: translateY(1px);
+}
+
+.disconnect-button:disabled {
+    background-color: #633;
+    color: #a88;
+    cursor: default;
+}
+
+.disconnect-button:disabled:hover {
+    background-color: #633;
+    color: #a88;
+}
+
+.disconnect-button:disabled:active {
+    transform: none;
+}
+
+.disconnect-button-primary-text {
+    color: inherit;
+    text-align: left;
+}
+
+.disconnect-button-secondary-text {
+    font-size: 12px;
+    color: #daa;
+    text-align: left;
+    font-weight: 400;
+}
+
+.warning-box {
+    display: flex;
+    flex-direction: column;
+    background-color: #2a2222;
+    border: 1px solid #644;
+    border-radius: 3px;
+    color: #fcc;
+    padding: 10px;
+    font-size: 14px;
+}
+
+.warning-box-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    color: inherit;
+}
+
+.warning-box-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 12px;
+    color: #daa;
+    text-align: left;
+    font-weight: 400;
+    max-height: 500px;
+    overflow: hidden;
+    opacity: 1;
+
+    transition: max-height 0.15s ease-in-out, opacity 0.15s ease-in-out;
+}
+
+.warning-box-content-hidden {
+    max-height: 0;
+    opacity: 0;
+}
+
+.warning-box-text {
+    color: inherit;
+    margin-top: 5px;
+}
+
+.chevron {
+    border-right: 1px solid #fcc;
+    border-bottom: 1px solid #fcc;
+    width: 8px;
+    height: 8px;
+    transition: transform 0.15s ease-in-out, margin 0.15s ease-in-out;
+}
+
+.chevron-down {
+    transform: rotate(45deg);
+    margin-top: -5px;
+}
+
+.chevron-up {
+    transform: rotate(-135deg);
+    margin-bottom: -5px;
+}
+
+.chevron-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 8px 5px;
+    cursor: pointer;
+}
+
+@media screen and (min-width: 768px) {
+    .warning-box {
+        max-width: 300px;
+    }
 }

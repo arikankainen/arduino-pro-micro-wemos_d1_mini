@@ -39,6 +39,8 @@ void handleScan() {
         JsonObject net = networks.createNestedObject();
         net["ssid"] = ssid;
         net["channel"] = channel;
+        net["signalStrengthDb"] = rssi;
+        net["signalStrengthQuality"] = getSignalQuality(rssi);
         net["signalStrength"] = String(rssi) + " dB (" + getSignalQuality(rssi) + ")";
         net["encryption"] = getEncryptionTypeName(WiFi.encryptionType(i));
         net["connected"] = (ssid == currentSSID && channel == currentChannel);

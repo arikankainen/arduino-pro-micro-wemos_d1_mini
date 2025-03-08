@@ -7,13 +7,19 @@
             content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=2"
         />
         <link rel="stylesheet" href="styles.css" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
+            rel="stylesheet"
+        />
     </head>
 
     <body>
         <main>
             <div class="tab-container">
                 <a href="/" class="tab inactive-tab">Presets</a>
-                <span class="tab active-tab">Settings</span>
+                <a href="/settings" class="tab active-tab">Settings</a>
             </div>
 
             <div style="display: flex; gap: 1rem">
@@ -32,6 +38,30 @@
                 />
                 <button id="connect" onclick="connect()">Connect</button>
                 <div id="connect-loader"></div>
+            </div>
+
+            <div class="line"></div>
+
+            <div class="warning-box">
+                <div class="warning-box-top">
+                    Disconnect from network
+                    <div class="chevron-container" onclick="toggleDisconnectInfo()">
+                        <div id="warning-box-chevron" class="chevron chevron-down"></div>
+                    </div>
+                </div>
+                <div
+                    id="warning-box-content"
+                    class="warning-box-content warning-box-content-hidden"
+                >
+                    <div class="warning-box-text">
+                        After disconnecting, you must set the device to Access Point mode and
+                        re-establish your own connection to the device's access point network.
+                    </div>
+
+                    <button id="disconnect" class="disconnect-button" onclick="disconnect()">
+                        Disconnect
+                    </button>
+                </div>
             </div>
         </main>
 

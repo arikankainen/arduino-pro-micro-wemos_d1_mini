@@ -1,5 +1,6 @@
 let networks = [];
 let selectedNetworkIndex = null;
+let disconnectInfoVisible = false;
 
 async function getNetworks() {
     loading('refresh-loader', true);
@@ -56,25 +57,14 @@ function createNetworkElement(network, index) {
     networkElement.className = 'network-container';
     networkElement.innerHTML = `
         <div class="network-container-details" onclick="selectNetwork(${index}, this)">
-            <div style="display: flex; gap: 5px;">
-                <div style="display: flex; flex-direction: column; gap: 2px;">    
-                    <div style="text-align: right;">SSID:</div>
-                    <div style="text-align: right;">Channel:</div>
-                    <div style="text-align: right;">Signal:</div>
-                    <div style="text-align: right;">Encryption:</div>
-                    <div style="text-align: right;">Connected:</div>
-                </div>
-                
-                <div style="display: flex; flex-direction: column; gap: 2px;">    
-                    <div><strong>${network.ssid}</strong></div>
-                    <div><strong>${network.channel}</strong></div>
-                    <div><strong>${network.signalStrength}</strong></div>
-                    <div><strong>${network.encryption}</strong></div>
-                    <div><strong>${network.connected?.toString()}</strong></div>
-                </div>
+            <div class="network-name">${network.ssid}</div>
+            <div class="network-info">
+                Ch: ${network.channel},
+                ${network.encryption},
+                Signal: ${network.signalStrength}
             </div>
         </div>
-        <div class="network-container-connected" style="display: ${
+        <div class="network-connected" style="display: ${
             network.connected ? 'block' : 'none'
         };">Connected</div>
     `;
@@ -108,9 +98,11 @@ function renderNetworks(networks) {
     const container = document.getElementById('networks-container');
     container.innerHTML = '';
 
-    for (let i = 0; i < networks.length; i++) {
-        container.appendChild(createNetworkElement(networks[i], i));
-    }
+    const sortedNetworks = [...networks].sort((a, b) => b.signalStrengthDb - a.signalStrengthDb);
+
+    sortedNetworks.forEach((network, index) => {
+        container.appendChild(createNetworkElement(network, index));
+    });
 }
 
 function selectNetwork(index) {
@@ -130,6 +122,24 @@ function selectNetwork(index) {
     enableOrDisableConnectButton();
 }
 
+function toggleDisconnectInfo() {
+    disconnectInfoVisible = !disconnectInfoVisible;
+    const warningBoxContent = document.getElementById('warning-box-content');
+    const warningBoxChevron = document.getElementById('warning-box-chevron');
+
+    if (disconnectInfoVisible) {
+        warningBoxContent.classList.remove('warning-box-content-hidden');
+
+        warningBoxChevron.classList.remove('chevron-down');
+        warningBoxChevron.classList.add('chevron-up');
+    } else {
+        warningBoxContent.classList.add('warning-box-content-hidden');
+
+        warningBoxChevron.classList.remove('chevron-up');
+        warningBoxChevron.classList.add('chevron-down');
+    }
+}
+
 (async () => {
     // getNetworks();
     enableOrDisableConnectButton();
@@ -140,6 +150,8 @@ function selectNetwork(index) {
                 ssid: 'family',
                 channel: 1,
                 signalStrength: '-89 dB (Very Poor)',
+                signalStrengthDb: -89,
+                signalStrengthQuality: 'Very Poor',
                 encryption: 'WPA2',
                 connected: false,
             },
@@ -147,6 +159,8 @@ function selectNetwork(index) {
                 ssid: 'family',
                 channel: 1,
                 signalStrength: '-86 dB (Very Poor)',
+                signalStrengthDb: -86,
+                signalStrengthQuality: 'Very Poor',
                 encryption: 'WPA2',
                 connected: false,
             },
@@ -154,6 +168,8 @@ function selectNetwork(index) {
                 ssid: 'DIRECT-73M2020 Series',
                 channel: 6,
                 signalStrength: '-47 dB (Excellent)',
+                signalStrengthDb: -47,
+                signalStrengthQuality: 'Excellent',
                 encryption: 'WPA2',
                 connected: false,
             },
@@ -161,6 +177,8 @@ function selectNetwork(index) {
                 ssid: 'BUFFALO',
                 channel: 6,
                 signalStrength: '-50 dB (Excellent)',
+                signalStrengthDb: -50,
+                signalStrengthQuality: 'Excellent',
                 encryption: 'WPA2',
                 connected: true,
             },
@@ -168,6 +186,8 @@ function selectNetwork(index) {
                 ssid: 'Koti_05CD',
                 channel: 7,
                 signalStrength: '-91 dB (Very Poor)',
+                signalStrengthDb: -91,
+                signalStrengthQuality: 'Very Poor',
                 encryption: 'WPA2',
                 connected: false,
             },
