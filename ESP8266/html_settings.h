@@ -16,6 +16,8 @@ const char settingsPage[] PROGMEM = R"rawliteral(
     margin: 0;
     padding: 0;
     color: #ccc;
+    font-family: 'Open Sans', sans-serif;
+    -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -135,14 +137,15 @@ button:disabled:active {
 .tab-container {
     display: flex;
     border-bottom: 1px solid #444;
+    margin-bottom: 1rem;
 }
 
 .tab {
-    font-size: 18px;
-    font-weight: 500;
+    font-size: 20px;
+    font-weight: 800;
     text-decoration: none;
     text-transform: uppercase;
-    letter-spacing: 4px;
+    letter-spacing: 3px;
     padding: 5px 15px;
     line-height: 1;
 }
@@ -151,15 +154,22 @@ button:disabled:active {
     color: #bbb;
     border-bottom: 1px solid #bbb;
     margin-bottom: -1px;
-    cursor: default;
 }
 
 .inactive-tab {
     color: #888;
 }
 
+.active-tab:hover {
+    color: #ddd;
+}
+
 .inactive-tab:hover {
     color: #aaa;
+}
+
+.line {
+    border-bottom: 1px solid #333;
 }
 
 /*** PRESETS ***/
@@ -229,6 +239,7 @@ button:disabled:active {
     border: 1px solid #333;
     cursor: pointer;
     transition: background-color 0.15s, border-color 0.15s;
+    gap: 10px;
 }
 
 .network-container-details {
@@ -244,24 +255,164 @@ button:disabled:active {
     background-color: rgb(36, 44, 54);
 }
 
-.network-container-connected {
+.network-connected {
     border: 1px solid #247024;
     background-color: #244424;
     color: #94c094;
     text-transform: uppercase;
     font-size: 10px;
     letter-spacing: 1px;
-    padding: 3px 5px;
-    border-radius: 5px;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+.network-name {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.network-info {
+    display: flex;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 400;
+    color: #888;
+}
+
+.disconnect-button {
+    background-color: #955;
+    border: none;
+    border-radius: 3px;
+    color: #fcc;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.disconnect-button:hover {
+    background-color: #a66;
+}
+
+.disconnect-button:active {
+    transform: translateY(1px);
+}
+
+.disconnect-button:disabled {
+    background-color: #633;
+    color: #a88;
+    cursor: default;
+}
+
+.disconnect-button:disabled:hover {
+    background-color: #633;
+    color: #a88;
+}
+
+.disconnect-button:disabled:active {
+    transform: none;
+}
+
+.disconnect-button-primary-text {
+    color: inherit;
+    text-align: left;
+}
+
+.disconnect-button-secondary-text {
+    font-size: 12px;
+    color: #daa;
+    text-align: left;
+    font-weight: 400;
+}
+
+.warning-box {
+    display: flex;
+    flex-direction: column;
+    background-color: #2a2222;
+    border: 1px solid #644;
+    border-radius: 3px;
+    color: #fcc;
+    padding: 10px;
+    font-size: 14px;
+}
+
+.warning-box-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    color: inherit;
+}
+
+.warning-box-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 12px;
+    color: #daa;
+    text-align: left;
+    font-weight: 400;
+    max-height: 500px;
+    overflow: hidden;
+    opacity: 1;
+
+    transition: max-height 0.15s ease-in-out, opacity 0.15s ease-in-out;
+}
+
+.warning-box-content-hidden {
+    max-height: 0;
+    opacity: 0;
+}
+
+.warning-box-text {
+    color: inherit;
+    margin-top: 5px;
+}
+
+.chevron {
+    border-right: 1px solid #fcc;
+    border-bottom: 1px solid #fcc;
+    width: 8px;
+    height: 8px;
+    transition: transform 0.15s ease-in-out, margin 0.15s ease-in-out;
+}
+
+.chevron-down {
+    transform: rotate(45deg);
+    margin-top: -5px;
+}
+
+.chevron-up {
+    transform: rotate(-135deg);
+    margin-bottom: -5px;
+}
+
+.chevron-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 8px 5px;
+    cursor: pointer;
+}
+
+@media screen and (min-width: 768px) {
+    .warning-box {
+        max-width: 300px;
+    }
 }
 </style>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
+            rel="stylesheet"
+        />
     </head>
 
     <body>
         <main>
             <div class="tab-container">
                 <a href="/" class="tab inactive-tab">Presets</a>
-                <span class="tab active-tab">Settings</span>
+                <a href="/settings" class="tab active-tab">Settings</a>
             </div>
 
             <div style="display: flex; gap: 1rem">
@@ -281,11 +432,36 @@ button:disabled:active {
                 <button id="connect" onclick="connect()">Connect</button>
                 <div id="connect-loader"></div>
             </div>
+
+            <div class="line"></div>
+
+            <div class="warning-box">
+                <div class="warning-box-top">
+                    Disconnect from network
+                    <div class="chevron-container" onclick="toggleDisconnectInfo()">
+                        <div id="warning-box-chevron" class="chevron chevron-down"></div>
+                    </div>
+                </div>
+                <div
+                    id="warning-box-content"
+                    class="warning-box-content warning-box-content-hidden"
+                >
+                    <div class="warning-box-text">
+                        After disconnecting, you must set the device to Access Point mode and
+                        re-establish your own connection to the device's access point network.
+                    </div>
+
+                    <button id="disconnect" class="disconnect-button" onclick="disconnect()">
+                        Disconnect
+                    </button>
+                </div>
+            </div>
         </main>
 
         <script>
 let networks = [];
 let selectedNetworkIndex = null;
+let disconnectInfoVisible = false;
 
 async function getNetworks() {
     loading('refresh-loader', true);
@@ -342,25 +518,14 @@ function createNetworkElement(network, index) {
     networkElement.className = 'network-container';
     networkElement.innerHTML = `
         <div class="network-container-details" onclick="selectNetwork(${index}, this)">
-            <div style="display: flex; gap: 5px;">
-                <div style="display: flex; flex-direction: column; gap: 2px;">    
-                    <div style="text-align: right;">SSID:</div>
-                    <div style="text-align: right;">Channel:</div>
-                    <div style="text-align: right;">Signal:</div>
-                    <div style="text-align: right;">Encryption:</div>
-                    <div style="text-align: right;">Connected:</div>
-                </div>
-                
-                <div style="display: flex; flex-direction: column; gap: 2px;">    
-                    <div><strong>${network.ssid}</strong></div>
-                    <div><strong>${network.channel}</strong></div>
-                    <div><strong>${network.signalStrength}</strong></div>
-                    <div><strong>${network.encryption}</strong></div>
-                    <div><strong>${network.connected?.toString()}</strong></div>
-                </div>
+            <div class="network-name">${network.ssid}</div>
+            <div class="network-info">
+                Ch: ${network.channel},
+                ${network.encryption},
+                Signal: ${network.signalStrength}
             </div>
         </div>
-        <div class="network-container-connected" style="display: ${
+        <div class="network-connected" style="display: ${
             network.connected ? 'block' : 'none'
         };">Connected</div>
     `;
@@ -394,9 +559,11 @@ function renderNetworks(networks) {
     const container = document.getElementById('networks-container');
     container.innerHTML = '';
 
-    for (let i = 0; i < networks.length; i++) {
-        container.appendChild(createNetworkElement(networks[i], i));
-    }
+    const sortedNetworks = [...networks].sort((a, b) => b.signalStrengthDb - a.signalStrengthDb);
+
+    sortedNetworks.forEach((network, index) => {
+        container.appendChild(createNetworkElement(network, index));
+    });
 }
 
 function selectNetwork(index) {
@@ -416,6 +583,24 @@ function selectNetwork(index) {
     enableOrDisableConnectButton();
 }
 
+function toggleDisconnectInfo() {
+    disconnectInfoVisible = !disconnectInfoVisible;
+    const warningBoxContent = document.getElementById('warning-box-content');
+    const warningBoxChevron = document.getElementById('warning-box-chevron');
+
+    if (disconnectInfoVisible) {
+        warningBoxContent.classList.remove('warning-box-content-hidden');
+
+        warningBoxChevron.classList.remove('chevron-down');
+        warningBoxChevron.classList.add('chevron-up');
+    } else {
+        warningBoxContent.classList.add('warning-box-content-hidden');
+
+        warningBoxChevron.classList.remove('chevron-up');
+        warningBoxChevron.classList.add('chevron-down');
+    }
+}
+
 (async () => {
     getNetworks();
     enableOrDisableConnectButton();
@@ -426,6 +611,8 @@ function selectNetwork(index) {
     //             ssid: 'family',
     //             channel: 1,
     //             signalStrength: '-89 dB (Very Poor)',
+    //             signalStrengthDb: -89,
+    //             signalStrengthQuality: 'Very Poor',
     //             encryption: 'WPA2',
     //             connected: false,
     //         },
@@ -433,6 +620,8 @@ function selectNetwork(index) {
     //             ssid: 'family',
     //             channel: 1,
     //             signalStrength: '-86 dB (Very Poor)',
+    //             signalStrengthDb: -86,
+    //             signalStrengthQuality: 'Very Poor',
     //             encryption: 'WPA2',
     //             connected: false,
     //         },
@@ -440,6 +629,8 @@ function selectNetwork(index) {
     //             ssid: 'DIRECT-73M2020 Series',
     //             channel: 6,
     //             signalStrength: '-47 dB (Excellent)',
+    //             signalStrengthDb: -47,
+    //             signalStrengthQuality: 'Excellent',
     //             encryption: 'WPA2',
     //             connected: false,
     //         },
@@ -447,6 +638,8 @@ function selectNetwork(index) {
     //             ssid: 'BUFFALO',
     //             channel: 6,
     //             signalStrength: '-50 dB (Excellent)',
+    //             signalStrengthDb: -50,
+    //             signalStrengthQuality: 'Excellent',
     //             encryption: 'WPA2',
     //             connected: true,
     //         },
@@ -454,6 +647,8 @@ function selectNetwork(index) {
     //             ssid: 'Koti_05CD',
     //             channel: 7,
     //             signalStrength: '-91 dB (Very Poor)',
+    //             signalStrengthDb: -91,
+    //             signalStrengthQuality: 'Very Poor',
     //             encryption: 'WPA2',
     //             connected: false,
     //         },

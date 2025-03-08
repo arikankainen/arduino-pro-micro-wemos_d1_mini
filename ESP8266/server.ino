@@ -5,6 +5,7 @@ void setupServer() {
     server.on("/save_preset", HTTP_POST, handleSavePreset);
     server.on("/get_preset", HTTP_POST, handleGetPreset);
     server.on("/connect", HTTP_POST, handleConnect);
+    server.on("/disconnect", HTTP_POST, handleDisconnect);
     server.begin();
     Serial.println("Web server started");
 }
@@ -96,6 +97,27 @@ void handleGetPreset() {
 }
 
 void handleConnect() {
+    if (server.hasArg("plain")) {
+        String jsonData = server.arg("plain");
+
+        StaticJsonDocument<256> doc;
+        DeserializationError error = deserializeJson(doc, jsonData);
+
+        if (error) {
+            server.send(400, "text/plain", "JSON Parsing Failed");
+            return;
+        }
+
+        // String preset = doc["preset"];
+        // String content = loadPreset(preset);
+
+        server.send(200, "text/plain", "OK");
+    } else {
+        server.send(400, "text/plain", "No data received");
+    }
+}
+
+void handleDisconnect() {
     if (server.hasArg("plain")) {
         String jsonData = server.arg("plain");
 

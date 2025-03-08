@@ -1,5 +1,6 @@
 let networks = [];
 let selectedNetworkIndex = null;
+let connectInfoVisible = false;
 let disconnectInfoVisible = false;
 
 async function getNetworks() {
@@ -14,6 +15,7 @@ async function getNetworks() {
 
         const responseJson = await response.json();
         networks = responseJson.networks;
+        checkIfConnected();
         renderNetworks(networks);
     } catch (error) {
         setTimeout(() => alert(error), 300);
@@ -24,30 +26,37 @@ async function getNetworks() {
 }
 
 async function connect() {
-    loading('connect-loader', true);
     disabled('connect', true);
+    disabled('disconnect', true);
     disabled('password', true);
+
     const selectedNetwork = networks?.[selectedNetworkIndex];
     const ssid = selectedNetwork?.ssid;
     const password = document.getElementById('password').value;
 
-    console.log({ ssid, password });
-
     try {
-        const response = await fetch('/connect', {
+        await fetch('/connect', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ network: selectedNetworkIndex }),
+            body: JSON.stringify({ ssid, password }),
         });
-
-        const responseJson = await response.json();
-        alert(responseJson.message);
     } catch (error) {
-        setTimeout(() => alert(error), 300);
-    } finally {
-        loading('connect-loader', false);
-        disabled('connect', false);
-        disabled('password', false);
+        alert(error);
+    }
+}
+
+async function disconnect() {
+    disabled('connect', true);
+    disabled('disconnect', true);
+    disabled('password', true);
+
+    try {
+        await fetch('/disconnect', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+        });
+    } catch (error) {
+        alert(error);
     }
 }
 
@@ -122,21 +131,48 @@ function selectNetwork(index) {
     enableOrDisableConnectButton();
 }
 
-function toggleDisconnectInfo() {
-    disconnectInfoVisible = !disconnectInfoVisible;
-    const warningBoxContent = document.getElementById('warning-box-content');
-    const warningBoxChevron = document.getElementById('warning-box-chevron');
+function toggleConnectInfo() {
+    connectInfoVisible = !connectInfoVisible;
+    const warningBoxContent = document.getElementById('connect-warning-box-content');
+    const warningBoxChevron = document.getElementById('connect-warning-box-chevron');
 
-    if (disconnectInfoVisible) {
-        warningBoxContent.classList.remove('warning-box-content-hidden');
+    if (connectInfoVisible) {
+        warningBoxContent.classList.remove('connection-warning-box-content-hidden');
 
         warningBoxChevron.classList.remove('chevron-down');
         warningBoxChevron.classList.add('chevron-up');
     } else {
-        warningBoxContent.classList.add('warning-box-content-hidden');
+        warningBoxContent.classList.add('connection-warning-box-content-hidden');
 
         warningBoxChevron.classList.remove('chevron-up');
         warningBoxChevron.classList.add('chevron-down');
+    }
+}
+
+function toggleDisconnectInfo() {
+    disconnectInfoVisible = !disconnectInfoVisible;
+    const warningBoxContent = document.getElementById('disconnect-warning-box-content');
+    const warningBoxChevron = document.getElementById('disconnect-warning-box-chevron');
+
+    if (disconnectInfoVisible) {
+        warningBoxContent.classList.remove('connection-warning-box-content-hidden');
+
+        warningBoxChevron.classList.remove('chevron-down');
+        warningBoxChevron.classList.add('chevron-up');
+    } else {
+        warningBoxContent.classList.add('connection-warning-box-content-hidden');
+
+        warningBoxChevron.classList.remove('chevron-up');
+        warningBoxChevron.classList.add('chevron-down');
+    }
+}
+
+function checkIfConnected() {
+    const connectedNetwork = networks.find((network) => network.connected);
+    if (connectedNetwork) {
+        document.getElementById('disconnect-box').style.display = 'flex';
+    } else {
+        document.getElementById('disconnect-box').style.display = 'none';
     }
 }
 
@@ -195,5 +231,6 @@ function toggleDisconnectInfo() {
     };
 
     networks = responseJson.networks;
+    checkIfConnected();
     renderNetworks(networks);
 })();

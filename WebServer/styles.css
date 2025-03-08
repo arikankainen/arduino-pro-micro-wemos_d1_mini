@@ -4,6 +4,7 @@
     padding: 0;
     color: #ccc;
     font-family: 'Open Sans', sans-serif;
+    -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -242,7 +243,6 @@ button:disabled:active {
 }
 
 .network-connected {
-    border: 1px solid #247024;
     background-color: #244424;
     color: #94c094;
     text-transform: uppercase;
@@ -265,28 +265,47 @@ button:disabled:active {
     color: #888;
 }
 
-.disconnect-button {
-    background-color: #955;
+/*** WARNING BOXES ***/
+
+.connection-button {
     border: none;
     border-radius: 3px;
-    color: #fcc;
     padding: 5px 10px;
     cursor: pointer;
     transition: background-color 0.15s;
+}
+
+.connect-button {
+    background-color: #595;
+    color: #cfc;
+}
+
+.disconnect-button {
+    background-color: #955;
+    color: #fcc;
+}
+
+.connect-button:hover {
+    background-color: #6a6;
 }
 
 .disconnect-button:hover {
     background-color: #a66;
 }
 
-.disconnect-button:active {
-    transform: translateY(1px);
+.connect-button:disabled {
+    background-color: #363;
+    color: #8a8;
 }
 
 .disconnect-button:disabled {
     background-color: #633;
     color: #a88;
-    cursor: default;
+}
+
+.connect-button:disabled:hover {
+    background-color: #363;
+    color: #8a8;
 }
 
 .disconnect-button:disabled:hover {
@@ -294,34 +313,27 @@ button:disabled:active {
     color: #a88;
 }
 
-.disconnect-button:disabled:active {
-    transform: none;
-}
-
-.disconnect-button-primary-text {
-    color: inherit;
-    text-align: left;
-}
-
-.disconnect-button-secondary-text {
-    font-size: 12px;
-    color: #daa;
-    text-align: left;
-    font-weight: 400;
-}
-
-.warning-box {
+.connection-warning-box {
     display: flex;
     flex-direction: column;
-    background-color: #2a2222;
-    border: 1px solid #644;
     border-radius: 3px;
-    color: #fcc;
     padding: 10px;
     font-size: 14px;
 }
 
-.warning-box-top {
+.connect-warning-box {
+    background-color: #222a22;
+    border: 1px solid #464;
+    color: #cfc;
+}
+
+.disconnect-warning-box {
+    background-color: #2a2222;
+    border: 1px solid #644;
+    color: #fcc;
+}
+
+.connection-warning-box-top {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -329,37 +341,50 @@ button:disabled:active {
     color: inherit;
 }
 
-.warning-box-content {
+.connection-warning-box-content {
     display: flex;
     flex-direction: column;
     gap: 10px;
     font-size: 12px;
-    color: #daa;
     text-align: left;
     font-weight: 400;
     max-height: 500px;
     overflow: hidden;
     opacity: 1;
-
     transition: max-height 0.15s ease-in-out, opacity 0.15s ease-in-out;
 }
 
-.warning-box-content-hidden {
+.connection-warning-box-content-hidden {
     max-height: 0;
     opacity: 0;
 }
 
-.warning-box-text {
-    color: inherit;
+.connection-warning-box-text {
     margin-top: 5px;
 }
 
+.connect-warning-box-text {
+    color: #ada;
+}
+
+.disconnect-warning-box-text {
+    color: #daa;
+}
+
 .chevron {
-    border-right: 1px solid #fcc;
-    border-bottom: 1px solid #fcc;
     width: 8px;
     height: 8px;
     transition: transform 0.15s ease-in-out, margin 0.15s ease-in-out;
+}
+
+.connect-chevron {
+    border-right: 1px solid #cfc;
+    border-bottom: 1px solid #cfc;
+}
+
+.disconnect-chevron {
+    border-right: 1px solid #fcc;
+    border-bottom: 1px solid #fcc;
 }
 
 .chevron-down {
@@ -381,7 +406,11 @@ button:disabled:active {
 }
 
 @media screen and (min-width: 768px) {
-    .warning-box {
+    #password {
+        max-width: 300px;
+    }
+
+    .connection-warning-box {
         max-width: 300px;
     }
 }

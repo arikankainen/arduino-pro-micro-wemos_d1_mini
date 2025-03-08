@@ -29,36 +29,66 @@
 
             <div id="networks-container"></div>
 
-            <div style="display: flex; gap: 1rem">
-                <input
-                    type="password"
-                    id="password"
-                    placeholder="Enter network password"
-                    onkeyup="enableOrDisableConnectButton()"
-                />
-                <button id="connect" onclick="connect()">Connect</button>
-                <div id="connect-loader"></div>
-            </div>
+            <input
+                type="password"
+                id="password"
+                placeholder="Enter network password..."
+                onkeyup="enableOrDisableConnectButton()"
+            />
 
-            <div class="line"></div>
-
-            <div class="warning-box">
-                <div class="warning-box-top">
-                    Disconnect from network
-                    <div class="chevron-container" onclick="toggleDisconnectInfo()">
-                        <div id="warning-box-chevron" class="chevron chevron-down"></div>
+            <div id="connect-box" class="connection-warning-box connect-warning-box">
+                <div class="connection-warning-box-top">
+                    Connect to network
+                    <div class="chevron-container" onclick="toggleConnectInfo()">
+                        <div
+                            id="connect-warning-box-chevron"
+                            class="chevron connect-chevron chevron-down"
+                        ></div>
                     </div>
                 </div>
                 <div
-                    id="warning-box-content"
-                    class="warning-box-content warning-box-content-hidden"
+                    id="connect-warning-box-content"
+                    class="connection-warning-box-content connection-warning-box-content-hidden"
                 >
-                    <div class="warning-box-text">
-                        After disconnecting, you must set the device to Access Point mode and
-                        re-establish your own connection to the device's access point network.
+                    <div class="connection-warning-box-text connect-warning-box-text">
+                        After connecting, you must re-establish your own connection to the same
+                        network.
                     </div>
 
-                    <button id="disconnect" class="disconnect-button" onclick="disconnect()">
+                    <button
+                        id="connect"
+                        class="connection-button connect-button"
+                        onclick="connect()"
+                    >
+                        Connect
+                    </button>
+                </div>
+            </div>
+
+            <div id="disconnect-box" class="connection-warning-box disconnect-warning-box">
+                <div class="connection-warning-box-top">
+                    Disconnect from network
+                    <div class="chevron-container" onclick="toggleDisconnectInfo()">
+                        <div
+                            id="disconnect-warning-box-chevron"
+                            class="chevron disconnect-chevron chevron-down"
+                        ></div>
+                    </div>
+                </div>
+                <div
+                    id="disconnect-warning-box-content"
+                    class="connection-warning-box-content connection-warning-box-content-hidden"
+                >
+                    <div class="connection-warning-box-text disconnect-warning-box-text">
+                        After disconnecting, you must set the device to Access Point mode and
+                        re-establish your own connection to the device's Access Point network.
+                    </div>
+
+                    <button
+                        id="disconnect"
+                        class="connection-button disconnect-button"
+                        onclick="disconnect()"
+                    >
                         Disconnect
                     </button>
                 </div>
