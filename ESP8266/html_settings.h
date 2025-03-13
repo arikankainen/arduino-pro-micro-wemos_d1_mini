@@ -50,7 +50,8 @@ textarea {
 
 textarea {
     width: 100%;
-    height: 80px;
+    min-height: 80px;
+    resize: vertical;
 
     scrollbar-color: #555 #333; /* For Firefox (thumb, track) */
 }
@@ -186,7 +187,12 @@ button:disabled:active {
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;
-    gap: 1rem;
+    gap: 5px;
+}
+
+.preset-title {
+    font-size: 14px;
+    color: #888;
 }
 
 .preset-name-and-button {
@@ -196,27 +202,7 @@ button:disabled:active {
     width: 100%;
 }
 
-#response-container {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-top: 1rem;
-    padding: 10px;
-    border: 1px solid #444;
-    background-color: #2a2a2a;
-    border-radius: 5px;
-}
-
-#response-title {
-    color: #bbb;
-    font-weight: 600;
-    font-size: 14px;
-}
-
-#response-log {
-    background-color: #282828;
-    color: #888;
-    height: 150px;
+.fixed-width-font {
     font-family: 'Courier New', Courier, monospace;
 }
 
@@ -256,7 +242,6 @@ button:disabled:active {
 }
 
 .network-connected {
-    border: 1px solid #247024;
     background-color: #244424;
     color: #94c094;
     text-transform: uppercase;
@@ -279,28 +264,47 @@ button:disabled:active {
     color: #888;
 }
 
-.disconnect-button {
-    background-color: #955;
+/*** WARNING BOXES ***/
+
+.connection-button {
     border: none;
     border-radius: 3px;
-    color: #fcc;
     padding: 5px 10px;
     cursor: pointer;
     transition: background-color 0.15s;
+}
+
+.connect-button {
+    background-color: #595;
+    color: #cfc;
+}
+
+.disconnect-button {
+    background-color: #955;
+    color: #fcc;
+}
+
+.connect-button:hover {
+    background-color: #6a6;
 }
 
 .disconnect-button:hover {
     background-color: #a66;
 }
 
-.disconnect-button:active {
-    transform: translateY(1px);
+.connect-button:disabled {
+    background-color: #363;
+    color: #8a8;
 }
 
 .disconnect-button:disabled {
     background-color: #633;
     color: #a88;
-    cursor: default;
+}
+
+.connect-button:disabled:hover {
+    background-color: #363;
+    color: #8a8;
 }
 
 .disconnect-button:disabled:hover {
@@ -308,34 +312,27 @@ button:disabled:active {
     color: #a88;
 }
 
-.disconnect-button:disabled:active {
-    transform: none;
-}
-
-.disconnect-button-primary-text {
-    color: inherit;
-    text-align: left;
-}
-
-.disconnect-button-secondary-text {
-    font-size: 12px;
-    color: #daa;
-    text-align: left;
-    font-weight: 400;
-}
-
-.warning-box {
+.connection-warning-box {
     display: flex;
     flex-direction: column;
-    background-color: #2a2222;
-    border: 1px solid #644;
     border-radius: 3px;
-    color: #fcc;
     padding: 10px;
     font-size: 14px;
 }
 
-.warning-box-top {
+.connect-warning-box {
+    background-color: #222a22;
+    border: 1px solid #464;
+    color: #cfc;
+}
+
+.disconnect-warning-box {
+    background-color: #2a2222;
+    border: 1px solid #644;
+    color: #fcc;
+}
+
+.connection-warning-box-top {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -343,37 +340,50 @@ button:disabled:active {
     color: inherit;
 }
 
-.warning-box-content {
+.connection-warning-box-content {
     display: flex;
     flex-direction: column;
     gap: 10px;
     font-size: 12px;
-    color: #daa;
     text-align: left;
     font-weight: 400;
     max-height: 500px;
     overflow: hidden;
     opacity: 1;
-
     transition: max-height 0.15s ease-in-out, opacity 0.15s ease-in-out;
 }
 
-.warning-box-content-hidden {
+.connection-warning-box-content-hidden {
     max-height: 0;
     opacity: 0;
 }
 
-.warning-box-text {
-    color: inherit;
+.connection-warning-box-text {
     margin-top: 5px;
 }
 
+.connect-warning-box-text {
+    color: #ada;
+}
+
+.disconnect-warning-box-text {
+    color: #daa;
+}
+
 .chevron {
-    border-right: 1px solid #fcc;
-    border-bottom: 1px solid #fcc;
     width: 8px;
     height: 8px;
     transition: transform 0.15s ease-in-out, margin 0.15s ease-in-out;
+}
+
+.connect-chevron {
+    border-right: 1px solid #cfc;
+    border-bottom: 1px solid #cfc;
+}
+
+.disconnect-chevron {
+    border-right: 1px solid #fcc;
+    border-bottom: 1px solid #fcc;
 }
 
 .chevron-down {
@@ -395,9 +405,23 @@ button:disabled:active {
 }
 
 @media screen and (min-width: 768px) {
-    .warning-box {
+    #password {
         max-width: 300px;
     }
+
+    .connection-warning-box {
+        max-width: 300px;
+    }
+}
+
+/****/
+
+.editor-container {
+    border: 1px solid #444;
+    border-radius: 3px;
+    overflow: hidden;
+    width: 100%;
+    height: auto;
 }
 </style>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -422,36 +446,66 @@ button:disabled:active {
 
             <div id="networks-container"></div>
 
-            <div style="display: flex; gap: 1rem">
-                <input
-                    type="password"
-                    id="password"
-                    placeholder="Enter network password"
-                    onkeyup="enableOrDisableConnectButton()"
-                />
-                <button id="connect" onclick="connect()">Connect</button>
-                <div id="connect-loader"></div>
-            </div>
+            <input
+                type="password"
+                id="password"
+                placeholder="Enter network password..."
+                onkeyup="enableOrDisableConnectButton()"
+            />
 
-            <div class="line"></div>
-
-            <div class="warning-box">
-                <div class="warning-box-top">
-                    Disconnect from network
-                    <div class="chevron-container" onclick="toggleDisconnectInfo()">
-                        <div id="warning-box-chevron" class="chevron chevron-down"></div>
+            <div id="connect-box" class="connection-warning-box connect-warning-box">
+                <div class="connection-warning-box-top">
+                    Connect to network
+                    <div class="chevron-container" onclick="toggleConnectInfo()">
+                        <div
+                            id="connect-warning-box-chevron"
+                            class="chevron connect-chevron chevron-down"
+                        ></div>
                     </div>
                 </div>
                 <div
-                    id="warning-box-content"
-                    class="warning-box-content warning-box-content-hidden"
+                    id="connect-warning-box-content"
+                    class="connection-warning-box-content connection-warning-box-content-hidden"
                 >
-                    <div class="warning-box-text">
-                        After disconnecting, you must set the device to Access Point mode and
-                        re-establish your own connection to the device's access point network.
+                    <div class="connection-warning-box-text connect-warning-box-text">
+                        After connecting, you must re-establish your own connection to the same
+                        network.
                     </div>
 
-                    <button id="disconnect" class="disconnect-button" onclick="disconnect()">
+                    <button
+                        id="connect"
+                        class="connection-button connect-button"
+                        onclick="connect()"
+                    >
+                        Connect
+                    </button>
+                </div>
+            </div>
+
+            <div id="disconnect-box" class="connection-warning-box disconnect-warning-box">
+                <div class="connection-warning-box-top">
+                    Disconnect from network
+                    <div class="chevron-container" onclick="toggleDisconnectInfo()">
+                        <div
+                            id="disconnect-warning-box-chevron"
+                            class="chevron disconnect-chevron chevron-down"
+                        ></div>
+                    </div>
+                </div>
+                <div
+                    id="disconnect-warning-box-content"
+                    class="connection-warning-box-content connection-warning-box-content-hidden"
+                >
+                    <div class="connection-warning-box-text disconnect-warning-box-text">
+                        After disconnecting, you must set the device to Access Point mode and
+                        re-establish your own connection to the device's Access Point network.
+                    </div>
+
+                    <button
+                        id="disconnect"
+                        class="connection-button disconnect-button"
+                        onclick="disconnect()"
+                    >
                         Disconnect
                     </button>
                 </div>
@@ -461,6 +515,7 @@ button:disabled:active {
         <script>
 let networks = [];
 let selectedNetworkIndex = null;
+let connectInfoVisible = false;
 let disconnectInfoVisible = false;
 
 async function getNetworks() {
@@ -475,6 +530,7 @@ async function getNetworks() {
 
         const responseJson = await response.json();
         networks = responseJson.networks;
+        checkIfConnected();
         renderNetworks(networks);
     } catch (error) {
         setTimeout(() => alert(error), 300);
@@ -485,30 +541,37 @@ async function getNetworks() {
 }
 
 async function connect() {
-    loading('connect-loader', true);
     disabled('connect', true);
+    disabled('disconnect', true);
     disabled('password', true);
+
     const selectedNetwork = networks?.[selectedNetworkIndex];
     const ssid = selectedNetwork?.ssid;
     const password = document.getElementById('password').value;
 
-    console.log({ ssid, password });
-
     try {
-        const response = await fetch('/connect', {
+        await fetch('/connect', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ network: selectedNetworkIndex }),
+            body: JSON.stringify({ ssid, password }),
         });
-
-        const responseJson = await response.json();
-        alert(responseJson.message);
     } catch (error) {
-        setTimeout(() => alert(error), 300);
-    } finally {
-        loading('connect-loader', false);
-        disabled('connect', false);
-        disabled('password', false);
+        alert(error);
+    }
+}
+
+async function disconnect() {
+    disabled('connect', true);
+    disabled('disconnect', true);
+    disabled('password', true);
+
+    try {
+        await fetch('/disconnect', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+        });
+    } catch (error) {
+        alert(error);
     }
 }
 
@@ -583,80 +646,108 @@ function selectNetwork(index) {
     enableOrDisableConnectButton();
 }
 
-function toggleDisconnectInfo() {
-    disconnectInfoVisible = !disconnectInfoVisible;
-    const warningBoxContent = document.getElementById('warning-box-content');
-    const warningBoxChevron = document.getElementById('warning-box-chevron');
+function toggleConnectInfo() {
+    connectInfoVisible = !connectInfoVisible;
+    const warningBoxContent = document.getElementById('connect-warning-box-content');
+    const warningBoxChevron = document.getElementById('connect-warning-box-chevron');
 
-    if (disconnectInfoVisible) {
-        warningBoxContent.classList.remove('warning-box-content-hidden');
+    if (connectInfoVisible) {
+        warningBoxContent.classList.remove('connection-warning-box-content-hidden');
 
         warningBoxChevron.classList.remove('chevron-down');
         warningBoxChevron.classList.add('chevron-up');
     } else {
-        warningBoxContent.classList.add('warning-box-content-hidden');
+        warningBoxContent.classList.add('connection-warning-box-content-hidden');
 
         warningBoxChevron.classList.remove('chevron-up');
         warningBoxChevron.classList.add('chevron-down');
     }
 }
 
+function toggleDisconnectInfo() {
+    disconnectInfoVisible = !disconnectInfoVisible;
+    const warningBoxContent = document.getElementById('disconnect-warning-box-content');
+    const warningBoxChevron = document.getElementById('disconnect-warning-box-chevron');
+
+    if (disconnectInfoVisible) {
+        warningBoxContent.classList.remove('connection-warning-box-content-hidden');
+
+        warningBoxChevron.classList.remove('chevron-down');
+        warningBoxChevron.classList.add('chevron-up');
+    } else {
+        warningBoxContent.classList.add('connection-warning-box-content-hidden');
+
+        warningBoxChevron.classList.remove('chevron-up');
+        warningBoxChevron.classList.add('chevron-down');
+    }
+}
+
+function checkIfConnected() {
+    const connectedNetwork = networks.find((network) => network.connected);
+    if (connectedNetwork) {
+        document.getElementById('disconnect-box').style.display = 'flex';
+    } else {
+        document.getElementById('disconnect-box').style.display = 'none';
+    }
+}
+
 (async () => {
-    getNetworks();
+    // getNetworks();
     enableOrDisableConnectButton();
 
-    // const responseJson = {
-    //     networks: [
-    //         {
-    //             ssid: 'family',
-    //             channel: 1,
-    //             signalStrength: '-89 dB (Very Poor)',
-    //             signalStrengthDb: -89,
-    //             signalStrengthQuality: 'Very Poor',
-    //             encryption: 'WPA2',
-    //             connected: false,
-    //         },
-    //         {
-    //             ssid: 'family',
-    //             channel: 1,
-    //             signalStrength: '-86 dB (Very Poor)',
-    //             signalStrengthDb: -86,
-    //             signalStrengthQuality: 'Very Poor',
-    //             encryption: 'WPA2',
-    //             connected: false,
-    //         },
-    //         {
-    //             ssid: 'DIRECT-73M2020 Series',
-    //             channel: 6,
-    //             signalStrength: '-47 dB (Excellent)',
-    //             signalStrengthDb: -47,
-    //             signalStrengthQuality: 'Excellent',
-    //             encryption: 'WPA2',
-    //             connected: false,
-    //         },
-    //         {
-    //             ssid: 'BUFFALO',
-    //             channel: 6,
-    //             signalStrength: '-50 dB (Excellent)',
-    //             signalStrengthDb: -50,
-    //             signalStrengthQuality: 'Excellent',
-    //             encryption: 'WPA2',
-    //             connected: true,
-    //         },
-    //         {
-    //             ssid: 'Koti_05CD',
-    //             channel: 7,
-    //             signalStrength: '-91 dB (Very Poor)',
-    //             signalStrengthDb: -91,
-    //             signalStrengthQuality: 'Very Poor',
-    //             encryption: 'WPA2',
-    //             connected: false,
-    //         },
-    //     ],
-    // };
+    const responseJson = {
+        networks: [
+            {
+                ssid: 'family',
+                channel: 1,
+                signalStrength: '-89 dB (Very Poor)',
+                signalStrengthDb: -89,
+                signalStrengthQuality: 'Very Poor',
+                encryption: 'WPA2',
+                connected: false,
+            },
+            {
+                ssid: 'family',
+                channel: 1,
+                signalStrength: '-86 dB (Very Poor)',
+                signalStrengthDb: -86,
+                signalStrengthQuality: 'Very Poor',
+                encryption: 'WPA2',
+                connected: false,
+            },
+            {
+                ssid: 'DIRECT-73M2020 Series',
+                channel: 6,
+                signalStrength: '-47 dB (Excellent)',
+                signalStrengthDb: -47,
+                signalStrengthQuality: 'Excellent',
+                encryption: 'WPA2',
+                connected: false,
+            },
+            {
+                ssid: 'BUFFALO',
+                channel: 6,
+                signalStrength: '-50 dB (Excellent)',
+                signalStrengthDb: -50,
+                signalStrengthQuality: 'Excellent',
+                encryption: 'WPA2',
+                connected: true,
+            },
+            {
+                ssid: 'Koti_05CD',
+                channel: 7,
+                signalStrength: '-91 dB (Very Poor)',
+                signalStrengthDb: -91,
+                signalStrengthQuality: 'Very Poor',
+                encryption: 'WPA2',
+                connected: false,
+            },
+        ],
+    };
 
-    // networks = responseJson.networks;
-    // renderNetworks(networks);
+    networks = responseJson.networks;
+    checkIfConnected();
+    renderNetworks(networks);
 })();
 </script>
     </body>

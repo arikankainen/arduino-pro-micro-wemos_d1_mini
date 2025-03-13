@@ -50,7 +50,8 @@ textarea {
 
 textarea {
     width: 100%;
-    height: 80px;
+    min-height: 80px;
+    resize: vertical;
 
     scrollbar-color: #555 #333; /* For Firefox (thumb, track) */
 }
@@ -186,7 +187,12 @@ button:disabled:active {
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;
-    gap: 1rem;
+    gap: 5px;
+}
+
+.preset-title {
+    font-size: 14px;
+    color: #888;
 }
 
 .preset-name-and-button {
@@ -196,27 +202,7 @@ button:disabled:active {
     width: 100%;
 }
 
-#response-container {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-top: 1rem;
-    padding: 10px;
-    border: 1px solid #444;
-    background-color: #2a2a2a;
-    border-radius: 5px;
-}
-
-#response-title {
-    color: #bbb;
-    font-weight: 600;
-    font-size: 14px;
-}
-
-#response-log {
-    background-color: #282828;
-    color: #888;
-    height: 150px;
+.fixed-width-font {
     font-family: 'Courier New', Courier, monospace;
 }
 
@@ -256,7 +242,6 @@ button:disabled:active {
 }
 
 .network-connected {
-    border: 1px solid #247024;
     background-color: #244424;
     color: #94c094;
     text-transform: uppercase;
@@ -279,28 +264,47 @@ button:disabled:active {
     color: #888;
 }
 
-.disconnect-button {
-    background-color: #955;
+/*** WARNING BOXES ***/
+
+.connection-button {
     border: none;
     border-radius: 3px;
-    color: #fcc;
     padding: 5px 10px;
     cursor: pointer;
     transition: background-color 0.15s;
+}
+
+.connect-button {
+    background-color: #595;
+    color: #cfc;
+}
+
+.disconnect-button {
+    background-color: #955;
+    color: #fcc;
+}
+
+.connect-button:hover {
+    background-color: #6a6;
 }
 
 .disconnect-button:hover {
     background-color: #a66;
 }
 
-.disconnect-button:active {
-    transform: translateY(1px);
+.connect-button:disabled {
+    background-color: #363;
+    color: #8a8;
 }
 
 .disconnect-button:disabled {
     background-color: #633;
     color: #a88;
-    cursor: default;
+}
+
+.connect-button:disabled:hover {
+    background-color: #363;
+    color: #8a8;
 }
 
 .disconnect-button:disabled:hover {
@@ -308,34 +312,27 @@ button:disabled:active {
     color: #a88;
 }
 
-.disconnect-button:disabled:active {
-    transform: none;
-}
-
-.disconnect-button-primary-text {
-    color: inherit;
-    text-align: left;
-}
-
-.disconnect-button-secondary-text {
-    font-size: 12px;
-    color: #daa;
-    text-align: left;
-    font-weight: 400;
-}
-
-.warning-box {
+.connection-warning-box {
     display: flex;
     flex-direction: column;
-    background-color: #2a2222;
-    border: 1px solid #644;
     border-radius: 3px;
-    color: #fcc;
     padding: 10px;
     font-size: 14px;
 }
 
-.warning-box-top {
+.connect-warning-box {
+    background-color: #222a22;
+    border: 1px solid #464;
+    color: #cfc;
+}
+
+.disconnect-warning-box {
+    background-color: #2a2222;
+    border: 1px solid #644;
+    color: #fcc;
+}
+
+.connection-warning-box-top {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -343,37 +340,50 @@ button:disabled:active {
     color: inherit;
 }
 
-.warning-box-content {
+.connection-warning-box-content {
     display: flex;
     flex-direction: column;
     gap: 10px;
     font-size: 12px;
-    color: #daa;
     text-align: left;
     font-weight: 400;
     max-height: 500px;
     overflow: hidden;
     opacity: 1;
-
     transition: max-height 0.15s ease-in-out, opacity 0.15s ease-in-out;
 }
 
-.warning-box-content-hidden {
+.connection-warning-box-content-hidden {
     max-height: 0;
     opacity: 0;
 }
 
-.warning-box-text {
-    color: inherit;
+.connection-warning-box-text {
     margin-top: 5px;
 }
 
+.connect-warning-box-text {
+    color: #ada;
+}
+
+.disconnect-warning-box-text {
+    color: #daa;
+}
+
 .chevron {
-    border-right: 1px solid #fcc;
-    border-bottom: 1px solid #fcc;
     width: 8px;
     height: 8px;
     transition: transform 0.15s ease-in-out, margin 0.15s ease-in-out;
+}
+
+.connect-chevron {
+    border-right: 1px solid #cfc;
+    border-bottom: 1px solid #cfc;
+}
+
+.disconnect-chevron {
+    border-right: 1px solid #fcc;
+    border-bottom: 1px solid #fcc;
 }
 
 .chevron-down {
@@ -395,9 +405,23 @@ button:disabled:active {
 }
 
 @media screen and (min-width: 768px) {
-    .warning-box {
+    #password {
         max-width: 300px;
     }
+
+    .connection-warning-box {
+        max-width: 300px;
+    }
+}
+
+/****/
+
+.editor-container {
+    border: 1px solid #444;
+    border-radius: 3px;
+    overflow: hidden;
+    width: 100%;
+    height: auto;
 }
 </style>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -405,6 +429,16 @@ button:disabled:active {
         <link
             href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
             rel="stylesheet"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.css"
+        />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/javascript/javascript.min.js"></script>
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/theme/material-darker.min.css"
         />
     </head>
 
@@ -416,16 +450,13 @@ button:disabled:active {
             </div>
 
             <div id="presets-container"></div>
-
-            <div id="response-container">
-                <div id="response-title">Server response</div>
-                <textarea id="response-log" readonly></textarea>
-            </div>
         </main>
 
         <script>
+const editors = [];
+
 async function savePreset(preset) {
-    const content = document.getElementById('preset' + preset).value;
+    const content = editors[preset - 1].getValue();
     const data = JSON.stringify({ preset: preset.toString(), content });
 
     try {
@@ -435,11 +466,9 @@ async function savePreset(preset) {
             body: data,
         });
 
-        const responseText = await response.text();
-        log(responseText);
+        await response.text();
     } catch (error) {
         console.error('Error:', error);
-        log('Failed to save preset #' + preset);
     }
 }
 
@@ -454,41 +483,35 @@ async function getPreset(preset) {
         });
 
         const responseText = await response.text();
-        document.getElementById('preset' + preset).value = responseText;
+        editors[preset - 1].setValue(responseText);
     } catch (error) {
         console.error('Error:', error);
-        log('Failed to load preset #' + preset);
     }
-}
-
-function log(newText) {
-    const now = new Date();
-    const day = String(now.getDate()).padStart(2, '0');
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const year = now.getFullYear();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-    const formattedDate = `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
-
-    const textarea = document.getElementById('response-log');
-    const lineBreak = textarea.value ? '\n' : '';
-    const logEntry = `${lineBreak}[${formattedDate}] ${newText}`;
-    textarea.value += logEntry;
-    textarea.scrollTop = textarea.scrollHeight;
 }
 
 function createPresetElement(preset) {
     const presetElement = document.createElement('div');
     presetElement.className = 'preset-container';
-    presetElement.innerHTML = `
-        <div class="preset-name-and-button">
-            <label for="preset${preset}">Preset #${preset}</label>
-            <textarea id="preset${preset}" name="preset${preset}"></textarea>
-        </div>
 
-        <button onclick="savePreset(${preset})">Save</button>
-    `;
+    const editorTitle = document.createElement('div');
+    editorTitle.className = 'preset-title';
+    editorTitle.innerHTML = `Preset ${preset}`;
+
+    const editorContainer = document.createElement('div');
+    editorContainer.className = 'editor-container';
+
+    const textarea = document.createElement('textarea');
+    textarea.id = `editor${preset}`;
+
+    editorContainer.appendChild(textarea);
+
+    const button = document.createElement('button');
+    button.innerHTML = 'Save';
+    button.onclick = () => savePreset(preset);
+
+    presetElement.appendChild(editorTitle);
+    presetElement.appendChild(editorContainer);
+    presetElement.appendChild(button);
 
     return presetElement;
 }
@@ -498,6 +521,27 @@ function createPresets() {
 
     for (let i = 1; i <= 10; i++) {
         container.appendChild(createPresetElement(i));
+
+        const editor = CodeMirror.fromTextArea(document.getElementById(`editor${i}`), {
+            mode: 'javascript',
+            theme: 'material-darker',
+            lineNumbers: true,
+        });
+
+        editors.push(editor);
+
+        function resizeEditor() {
+            const doc = editor.getDoc();
+            const lineCount = doc.lineCount();
+            const lineHeight = editor.defaultTextHeight();
+            let height = lineCount * lineHeight + 20;
+            if (height < 90) height = 90;
+
+            editor.setSize(null, height);
+        }
+
+        editor.on('change', resizeEditor);
+        resizeEditor();
     }
 }
 

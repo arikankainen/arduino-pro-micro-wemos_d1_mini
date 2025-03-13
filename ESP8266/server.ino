@@ -108,10 +108,12 @@ void handleConnect() {
             return;
         }
 
-        // String preset = doc["preset"];
-        // String content = loadPreset(preset);
+        String ssid = doc["ssid"];
+        String password = doc["password"];
 
         server.send(200, "text/plain", "OK");
+
+        // beginWifiStationMode(ssid, password);
     } else {
         server.send(400, "text/plain", "No data received");
     }
