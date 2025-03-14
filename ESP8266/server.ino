@@ -111,31 +111,22 @@ void handleConnect() {
         String ssid = doc["ssid"];
         String password = doc["password"];
 
-        server.send(200, "text/plain", "OK");
+        writeFile("ssid.txt", ssid);
+        writeFile("pass.txt", password);
 
-        // beginWifiStationMode(ssid, password);
+        server.send(200, "text/plain", "OK");
+        beginWifiStationMode();
     } else {
         server.send(400, "text/plain", "No data received");
     }
 }
 
 void handleDisconnect() {
-    if (server.hasArg("plain")) {
-        String jsonData = server.arg("plain");
+    Serial.println("disconnected");
+    server.send(200, "text/plain", "OK");
 
-        StaticJsonDocument<256> doc;
-        DeserializationError error = deserializeJson(doc, jsonData);
+    writeFile("ssid.txt", "");
+    writeFile("pass.txt", "");
 
-        if (error) {
-            server.send(400, "text/plain", "JSON Parsing Failed");
-            return;
-        }
-
-        // String preset = doc["preset"];
-        // String content = loadPreset(preset);
-
-        server.send(200, "text/plain", "OK");
-    } else {
-        server.send(400, "text/plain", "No data received");
-    }
+    beginWifiApMode();
 }

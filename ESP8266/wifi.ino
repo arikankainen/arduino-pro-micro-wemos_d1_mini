@@ -23,7 +23,6 @@ String getSignalQuality(int rssi) {
 
 void setupWifi() {
     beginWifiStationMode();
-    // WiFi.scanNetworksAsync(prinScanResult);
 }
 
 void prinScanResult(int networksFound) {
@@ -34,8 +33,16 @@ void prinScanResult(int networksFound) {
 }
 
 void sendStationModeIpAddress() {
-    Serial.print("station_ip=");
-    Serial.println(WiFi.localIP());
+    if (WiFi.status() == WL_CONNECTED) {
+        Serial.print("station_ip=");
+        Serial.println(WiFi.localIP());
+    } else {
+        sendErrorConnecting();
+    }
+}
+
+void sendErrorConnecting() {
+    Serial.print("error_connecting");
 }
 
 void sendStationModeConnecting() {
@@ -56,10 +63,31 @@ void beginWifiStationMode() {
     WiFi.softAPdisconnect(true);
     wifiApMode = false;
 
-    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+    String ssid = readFile("ssid.txt");
+    String password = readFile("pass.txt");
+
+    WiFi.begin(ssid.c_str(), password.c_str());
 
     Serial.print("Connecting to WiFi...");
+
+    unsigned long startAttemptTime = millis();
+    const unsigned long timeout = 10000;
+
     while (WiFi.status() != WL_CONNECTED) {
+        if (millis() - startAttemptTime > timeout) {
+            Serial.println("\nWiFi connection failed. Giving up.");
+
+            Serial.print("SSID:'");
+            Serial.print(ssid);
+            Serial.println("'");
+
+            Serial.print("Pass:'");
+            Serial.print(password);
+            Serial.println("'");
+
+            sendErrorConnecting();
+            return;
+        }
         delay(500);
         Serial.print(".");
     }

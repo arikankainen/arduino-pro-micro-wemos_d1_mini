@@ -1,12 +1,12 @@
-let networks = [];
-let selectedNetworkIndex = null;
-let connectInfoVisible = false;
-let disconnectInfoVisible = false;
+let _networks = [];
+let _selectedNetworkIndex = null;
+let _connectInfoVisible = false;
+let _disconnectInfoVisible = false;
 
 async function getNetworks() {
     loading('refresh-loader', true);
     disabled('refresh', true);
-    selectedNetworkIndex = null;
+    _selectedNetworkIndex = null;
 
     try {
         const response = await fetch('/scan', {
@@ -14,9 +14,8 @@ async function getNetworks() {
         });
 
         const responseJson = await response.json();
-        networks = responseJson.networks;
         checkIfConnected();
-        renderNetworks(networks);
+        renderNetworks(responseJson.networks);
     } catch (error) {
         setTimeout(() => alert(error), 300);
     } finally {
@@ -30,7 +29,7 @@ async function connect() {
     disabled('disconnect', true);
     disabled('password', true);
 
-    const selectedNetwork = networks?.[selectedNetworkIndex];
+    const selectedNetwork = _networks?.[_selectedNetworkIndex];
     const ssid = selectedNetwork?.ssid;
     const password = document.getElementById('password').value;
 
@@ -82,7 +81,7 @@ function createNetworkElement(network, index) {
 }
 
 function enableOrDisableConnectButton() {
-    const selectedNetwork = networks?.[selectedNetworkIndex];
+    const selectedNetwork = _networks?.[_selectedNetworkIndex];
     const ssid = selectedNetwork?.ssid;
     const password = document.getElementById('password').value;
 
@@ -109,6 +108,8 @@ function renderNetworks(networks) {
 
     const sortedNetworks = [...networks].sort((a, b) => b.signalStrengthDb - a.signalStrengthDb);
 
+    _networks = sortedNetworks;
+
     sortedNetworks.forEach((network, index) => {
         container.appendChild(createNetworkElement(network, index));
     });
@@ -118,25 +119,25 @@ function selectNetwork(index) {
     const allNetworks = document.querySelectorAll('.network-container');
     allNetworks.forEach((network) => network.classList.remove('selected'));
 
-    if (index !== selectedNetworkIndex) {
+    if (index !== _selectedNetworkIndex) {
         const selectedElement = allNetworks[index];
         if (selectedElement) {
             selectedElement.classList.add('selected');
         }
-        selectedNetworkIndex = index;
+        _selectedNetworkIndex = index;
     } else {
-        selectedNetworkIndex = null;
+        _selectedNetworkIndex = null;
     }
 
     enableOrDisableConnectButton();
 }
 
 function toggleConnectInfo() {
-    connectInfoVisible = !connectInfoVisible;
+    _connectInfoVisible = !_connectInfoVisible;
     const warningBoxContent = document.getElementById('connect-warning-box-content');
     const warningBoxChevron = document.getElementById('connect-warning-box-chevron');
 
-    if (connectInfoVisible) {
+    if (_connectInfoVisible) {
         warningBoxContent.classList.remove('connection-warning-box-content-hidden');
 
         warningBoxChevron.classList.remove('chevron-down');
@@ -150,11 +151,11 @@ function toggleConnectInfo() {
 }
 
 function toggleDisconnectInfo() {
-    disconnectInfoVisible = !disconnectInfoVisible;
+    _disconnectInfoVisible = !_disconnectInfoVisible;
     const warningBoxContent = document.getElementById('disconnect-warning-box-content');
     const warningBoxChevron = document.getElementById('disconnect-warning-box-chevron');
 
-    if (disconnectInfoVisible) {
+    if (_disconnectInfoVisible) {
         warningBoxContent.classList.remove('connection-warning-box-content-hidden');
 
         warningBoxChevron.classList.remove('chevron-down');
@@ -168,7 +169,7 @@ function toggleDisconnectInfo() {
 }
 
 function checkIfConnected() {
-    const connectedNetwork = networks.find((network) => network.connected);
+    const connectedNetwork = _networks.find((network) => network.connected);
     if (connectedNetwork) {
         document.getElementById('disconnect-box').style.display = 'flex';
     } else {
@@ -177,60 +178,60 @@ function checkIfConnected() {
 }
 
 (async () => {
-    // getNetworks();
+    getNetworks();
     enableOrDisableConnectButton();
 
-    const responseJson = {
-        networks: [
-            {
-                ssid: 'family',
-                channel: 1,
-                signalStrength: '-89 dB (Very Poor)',
-                signalStrengthDb: -89,
-                signalStrengthQuality: 'Very Poor',
-                encryption: 'WPA2',
-                connected: false,
-            },
-            {
-                ssid: 'family',
-                channel: 1,
-                signalStrength: '-86 dB (Very Poor)',
-                signalStrengthDb: -86,
-                signalStrengthQuality: 'Very Poor',
-                encryption: 'WPA2',
-                connected: false,
-            },
-            {
-                ssid: 'DIRECT-73M2020 Series',
-                channel: 6,
-                signalStrength: '-47 dB (Excellent)',
-                signalStrengthDb: -47,
-                signalStrengthQuality: 'Excellent',
-                encryption: 'WPA2',
-                connected: false,
-            },
-            {
-                ssid: 'BUFFALO',
-                channel: 6,
-                signalStrength: '-50 dB (Excellent)',
-                signalStrengthDb: -50,
-                signalStrengthQuality: 'Excellent',
-                encryption: 'WPA2',
-                connected: true,
-            },
-            {
-                ssid: 'Koti_05CD',
-                channel: 7,
-                signalStrength: '-91 dB (Very Poor)',
-                signalStrengthDb: -91,
-                signalStrengthQuality: 'Very Poor',
-                encryption: 'WPA2',
-                connected: false,
-            },
-        ],
-    };
+    // const responseJson = {
+    //     networks: [
+    //         {
+    //             ssid: 'family',
+    //             channel: 1,
+    //             signalStrength: '-89 dB (Very Poor)',
+    //             signalStrengthDb: -89,
+    //             signalStrengthQuality: 'Very Poor',
+    //             encryption: 'WPA2',
+    //             connected: false,
+    //         },
+    //         {
+    //             ssid: 'family',
+    //             channel: 1,
+    //             signalStrength: '-86 dB (Very Poor)',
+    //             signalStrengthDb: -86,
+    //             signalStrengthQuality: 'Very Poor',
+    //             encryption: 'WPA2',
+    //             connected: false,
+    //         },
+    //         {
+    //             ssid: 'DIRECT-73M2020 Series',
+    //             channel: 6,
+    //             signalStrength: '-47 dB (Excellent)',
+    //             signalStrengthDb: -47,
+    //             signalStrengthQuality: 'Excellent',
+    //             encryption: 'WPA2',
+    //             connected: false,
+    //         },
+    //         {
+    //             ssid: 'BUFFALO',
+    //             channel: 6,
+    //             signalStrength: '-50 dB (Excellent)',
+    //             signalStrengthDb: -50,
+    //             signalStrengthQuality: 'Excellent',
+    //             encryption: 'WPA2',
+    //             connected: true,
+    //         },
+    //         {
+    //             ssid: 'Koti_05CD',
+    //             channel: 7,
+    //             signalStrength: '-91 dB (Very Poor)',
+    //             signalStrengthDb: -91,
+    //             signalStrengthQuality: 'Very Poor',
+    //             encryption: 'WPA2',
+    //             connected: false,
+    //         },
+    //     ],
+    // };
 
-    networks = responseJson.networks;
-    checkIfConnected();
-    renderNetworks(networks);
+    // _networks = responseJson.networks;
+    // checkIfConnected();
+    // renderNetworks(_networks);
 })();

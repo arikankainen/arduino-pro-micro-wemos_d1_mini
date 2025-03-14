@@ -8,9 +8,6 @@ void checkSerial() {
         String line = Serial1.readStringUntil('\n');
         line.trim();
 
-        // Serial.print("Received: ");
-        // Serial.println(line);
-
         if (line == "###START###") {
             receiving = true;
             receivedData = "";
@@ -62,6 +59,14 @@ void checkSerial() {
             lcd.print("Access Point...");
         }
 
+        if (line.indexOf("ap_connecting") != -1) {
+            lcd.clear();
+            lcd.setCursor(0, 0);
+            lcd.print("Creating");
+            lcd.setCursor(0, 1);
+            lcd.print("Access Point...");
+        }
+
         if (line.indexOf("station_connecting") != -1) {
             lcd.clear();
             lcd.setCursor(0, 0);
@@ -88,17 +93,17 @@ void dataReceived() {
     // Serial.println("*************************");
     // Serial.println(receivedData);
     // Serial.println("*************************");
-    Keyboard.write(KEY_LEFT_ARROW);
-    Keyboard.write(KEY_LEFT_ARROW);
-    Keyboard.write(KEY_LEFT_ARROW);
-    Keyboard.write(KEY_LEFT_ARROW);
-    Keyboard.write(KEY_LEFT_ARROW);
-    Keyboard.write(KEY_RETURN);
-    Keyboard.write(KEY_UP_ARROW);
-    Keyboard.write(KEY_RIGHT_ARROW);
-    Keyboard.write(KEY_RIGHT_ARROW);
-    Keyboard.write(KEY_RIGHT_ARROW);
-    Keyboard.write(KEY_F2);
+    // Keyboard.write(KEY_LEFT_ARROW);
+    // Keyboard.write(KEY_LEFT_ARROW);
+    // Keyboard.write(KEY_LEFT_ARROW);
+    // Keyboard.write(KEY_LEFT_ARROW);
+    // Keyboard.write(KEY_LEFT_ARROW);
+    // Keyboard.write(KEY_RETURN);
+    // Keyboard.write(KEY_UP_ARROW);
+    // Keyboard.write(KEY_RIGHT_ARROW);
+    // Keyboard.write(KEY_RIGHT_ARROW);
+    // Keyboard.write(KEY_RIGHT_ARROW);
+    // Keyboard.write(KEY_F2);
 }
 
 void disableSerial1() {

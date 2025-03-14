@@ -410,3 +410,21 @@ button:disabled:active {
     width: 100%;
     height: auto;
 }
+
+.CodeMirror-hints {
+    background: #222 !important;
+    border: 1px solid #444 !important;
+    color: #ddd !important;
+    font-family: monospace;
+    font-size: 14px;
+}
+
+.CodeMirror-hint {
+    padding: 5px 10px !important;
+    color: #eee !important;
+}
+
+.CodeMirror-hint-active {
+    background: #303030 !important;
+    color: #eee !important;
+}

@@ -423,6 +423,24 @@ button:disabled:active {
     width: 100%;
     height: auto;
 }
+
+.CodeMirror-hints {
+    background: #222 !important;
+    border: 1px solid #444 !important;
+    color: #ddd !important;
+    font-family: monospace;
+    font-size: 14px;
+}
+
+.CodeMirror-hint {
+    padding: 5px 10px !important;
+    color: #eee !important;
+}
+
+.CodeMirror-hint-active {
+    background: #303030 !important;
+    color: #eee !important;
+}
 </style>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -434,12 +452,19 @@ button:disabled:active {
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.css"
         />
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/javascript/javascript.min.js"></script>
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/hint/show-hint.min.css"
+        />
         <link
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/theme/material-darker.min.css"
         />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/hint/show-hint.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/hint/javascript-hint.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/javascript/javascript.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/hint/javascript-hint.min.js"></script>
     </head>
 
     <body>
@@ -522,10 +547,66 @@ function createPresets() {
     for (let i = 1; i <= 10; i++) {
         container.appendChild(createPresetElement(i));
 
+        const macroCommands = [
+            { text: 'macro_start', displayText: 'macro_start - Begin a new macro' },
+            { text: 'macro_end', displayText: 'macro_end - End the macro' },
+            { text: 'click', displayText: 'click - Simulates a mouse click' },
+            { text: 'type_text', displayText: 'type_text - Type a string' },
+            { text: 'delay(1000);', displayText: 'delay(ms) - Wait for X milliseconds' },
+        ];
+
         const editor = CodeMirror.fromTextArea(document.getElementById(`editor${i}`), {
             mode: 'javascript',
             theme: 'material-darker',
             lineNumbers: true,
+            extraKeys: { 'Ctrl-Space': 'autocomplete' },
+            hintOptions: {
+                hint: function (cm) {
+                    const cur = cm.getCursor();
+                    const token = cm.getTokenAt(cur);
+
+                    const commands = [
+                        {
+                            text: 'key.enter; ',
+                            displayText: 'key.enter - Simulate Enter key press',
+                        },
+                        { text: 'key.left; ', displayText: 'key.left - Move left' },
+                        { text: 'key.right; ', displayText: 'key.right - Move right' },
+                        { text: 'delay.50; ', displayText: 'delay.50 - Pause for 50ms' },
+                        { text: 'delay.100; ', displayText: 'delay.100 - Pause for 100ms' },
+                        { text: 'delay.500; ', displayText: 'delay.500 - Pause for 500ms' },
+                    ];
+
+                    const list = commands.filter((cmd) => cmd.text.startsWith(token.string));
+                    return {
+                        list: list,
+                        from: CodeMirror.Pos(cur.line, token.start),
+                        to: CodeMirror.Pos(cur.line, token.end),
+                    };
+                },
+                completeSingle: false, // Don't auto-select first suggestion
+            },
+        });
+
+        CodeMirror.registerHelper('hint', 'javascript', function (editor) {
+            const cursor = editor.getCursor();
+            const token = editor.getTokenAt(cursor);
+
+            // Suggest commands matching the current text
+            const suggestions = macroCommands
+                .filter((cmd) => cmd.text.startsWith(token.string))
+                .map((cmd) => ({ text: cmd.text, displayText: cmd.displayText }));
+
+            return {
+                list: suggestions,
+                from: CodeMirror.Pos(cursor.line, token.start),
+                to: CodeMirror.Pos(cursor.from.line, token.end),
+            };
+        });
+
+        // Attach the auto-complete to Ctrl+Space
+        editor.setOption('extraKeys', {
+            'Ctrl-Space': 'autocomplete',
         });
 
         editors.push(editor);
