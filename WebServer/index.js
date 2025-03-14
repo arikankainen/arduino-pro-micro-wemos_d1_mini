@@ -37,7 +37,7 @@ async function getPreset(preset) {
         });
 
         const responseText = await response.text();
-        editors[preset - 1].setValue(responseText);
+        if (responseText) editors[preset - 1].setValue(responseText);
     } catch (error) {
         console.error('Error:', error);
     }
@@ -139,35 +139,44 @@ function createPresets() {
 
         const keyCommands = keys.map((key) => {
             return {
-                text: `{ key: "${key}" },`,
-                displayText: `{ key: "${key}" }`,
-            };
-        });
-
-        const keyCommandsWithRepeat = keys.map((key) => {
-            return {
-                text: `{ key: "${key}", repeat: 2 },`,
-                displayText: `{ key: "${key}", repeat: 2 }`,
+                text: `key: "${key}"`,
+                displayText: `key: "${key}"`,
             };
         });
 
         const delayCommands = delays.map((delay) => {
             return {
-                text: `{ delay: "${delay}" },`,
-                displayText: `{ key: "${delay}" }`,
+                text: `delay: "${delay}"`,
+                displayText: `delay: "${delay}"`,
             };
         });
 
         const textCommands = [
             {
-                text: `{ text: "" },`,
-                displayText: `{ text: "" }`,
+                text: `text: ""`,
+                displayText: `text: ""`,
+            },
+        ];
+
+        const additionalCommands = [
+            {
+                text: `repeat: 2`,
+                displayText: `repeat: 2`,
+            },
+            {
+                text: `press: true`,
+                displayText: `press: true`,
+            },
+            {
+                text: `release: true`,
+                displayText: `release: true`,
             },
         ];
 
         let commands = [
             ...keyCommands,
-            ...keyCommandsWithRepeat,
+            ...additionalCommands,
+            // ...keyCommandsWithRepeat,
             ...delayCommands,
             ...textCommands,
         ];
@@ -176,7 +185,9 @@ function createPresets() {
             mode: 'javascript',
             theme: 'material-darker',
             lineNumbers: true,
-            extraKeys: { 'Ctrl-Space': 'autocomplete' },
+            tabSize: 4,
+            indentWithTabs: false,
+            indentUnit: 4,
             hintOptions: {
                 hint: function (cm) {
                     const cur = cm.getCursor();
@@ -194,7 +205,6 @@ function createPresets() {
                     };
                 },
                 completeSingle: false,
-                maxHeight: '600px',
             },
         });
 
@@ -210,8 +220,51 @@ function createPresets() {
             editor.setSize(null, height);
         }
 
-        editor.on('change', resizeEditor);
         resizeEditor();
+        editor.setValue('[\n    \n]');
+
+        editor.setOption('extraKeys', {
+            Tab: (cm) => {
+                cm.replaceSelection('    ', 'end');
+            },
+            'Shift-Tab': 'indentLess',
+            'Ctrl-Space': 'autocomplete',
+        });
+
+        editor.on('beforeChange', (cm, change) => {
+            if (change.origin === 'setValue') return;
+
+            const { from, to } = change;
+            if (
+                from.line === 0 ||
+                to.line === 0 ||
+                from.line === cm.lastLine() ||
+                to.line === cm.lastLine()
+            ) {
+                change.cancel();
+            }
+        });
+
+        editor.on('change', (cm, change) => {
+            resizeEditor();
+            if (change.origin === 'complete') {
+                const cur = cm.getCursor();
+                const lineContent = cm.getLine(cur.line);
+                const insertedText = change.text.join('');
+
+                if (lineContent.replace(insertedText, '').trim() === '') {
+                    const wrappedText = `    { ${insertedText} },`;
+
+                    cm.replaceRange(
+                        wrappedText,
+                        { line: cur.line, ch: 0 },
+                        { line: cur.line, ch: lineContent.length }
+                    );
+
+                    cm.setCursor(CodeMirror.Pos(cur.line, wrappedText.length));
+                }
+            }
+        });
     }
 }
 
