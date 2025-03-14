@@ -2,7 +2,16 @@ const editors = [];
 
 async function savePreset(preset) {
     const content = editors[preset - 1].getValue();
-    const data = JSON.stringify({ preset: preset.toString(), content });
+    let data;
+
+    try {
+        const contentAsJavascript = eval(content);
+        data = JSON.stringify({ preset: preset.toString(), content: contentAsJavascript });
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Invalid JSON: ' + error);
+        return;
+    }
 
     try {
         const response = await fetch('/save_preset', {
@@ -67,12 +76,100 @@ function createPresets() {
     for (let i = 1; i <= 10; i++) {
         container.appendChild(createPresetElement(i));
 
-        const macroCommands = [
-            { text: 'macro_start', displayText: 'macro_start - Begin a new macro' },
-            { text: 'macro_end', displayText: 'macro_end - End the macro' },
-            { text: 'click', displayText: 'click - Simulates a mouse click' },
-            { text: 'type_text', displayText: 'type_text - Type a string' },
-            { text: 'delay(1000);', displayText: 'delay(ms) - Wait for X milliseconds' },
+        const keys = [
+            'KEY_UP_ARROW',
+            'KEY_DOWN_ARROW',
+            'KEY_LEFT_ARROW',
+            'KEY_RIGHT_ARROW',
+            'KEY_LEFT_CTRL',
+            'KEY_LEFT_SHIFT',
+            'KEY_LEFT_ALT',
+            'KEY_LEFT_GUI',
+            'KEY_RIGHT_CTRL',
+            'KEY_RIGHT_SHIFT',
+            'KEY_RIGHT_ALT',
+            'KEY_RIGHT_GUI',
+            'KEY_TAB',
+            'KEY_CAPS_LOCK',
+            'KEY_BACKSPACE',
+            'KEY_RETURN',
+            'KEY_MENU',
+            'KEY_INSERT',
+            'KEY_DELETE',
+            'KEY_HOME',
+            'KEY_END',
+            'KEY_PAGE_UP',
+            'KEY_PAGE_DOWN',
+            'KEY_NUM_LOCK',
+            'KEY_KP_SLASH',
+            'KEY_KP_ASTERISK',
+            'KEY_KP_MINUS',
+            'KEY_KP_PLUS',
+            'KEY_KP_ENTER',
+            'KEY_KP_1',
+            'KEY_KP_2',
+            'KEY_KP_3',
+            'KEY_KP_4',
+            'KEY_KP_5',
+            'KEY_KP_6',
+            'KEY_KP_7',
+            'KEY_KP_8',
+            'KEY_KP_9',
+            'KEY_KP_0',
+            'KEY_KP_DOT',
+            'KEY_ESC',
+            'KEY_F1',
+            'KEY_F2',
+            'KEY_F3',
+            'KEY_F4',
+            'KEY_F5',
+            'KEY_F6',
+            'KEY_F7',
+            'KEY_F8',
+            'KEY_F9',
+            'KEY_F10',
+            'KEY_F11',
+            'KEY_F12',
+            'KEY_PRINT_SCREEN',
+            'KEY_SCROLL_LOCK',
+            'KEY_PAUSE',
+        ];
+
+        const delays = [50, 100, 200, 500, 1000, 2000, 5000, 10000];
+
+        const keyCommands = keys.map((key) => {
+            return {
+                text: `{ key: "${key}" },`,
+                displayText: `{ key: "${key}" }`,
+            };
+        });
+
+        const keyCommandsWithRepeat = keys.map((key) => {
+            return {
+                text: `{ key: "${key}", repeat: 2 },`,
+                displayText: `{ key: "${key}", repeat: 2 }`,
+            };
+        });
+
+        const delayCommands = delays.map((delay) => {
+            return {
+                text: `{ delay: "${delay}" },`,
+                displayText: `{ key: "${delay}" }`,
+            };
+        });
+
+        const textCommands = [
+            {
+                text: `{ text: "" },`,
+                displayText: `{ text: "" }`,
+            },
+        ];
+
+        let commands = [
+            ...keyCommands,
+            ...keyCommandsWithRepeat,
+            ...delayCommands,
+            ...textCommands,
         ];
 
         const editor = CodeMirror.fromTextArea(document.getElementById(`editor${i}`), {
@@ -84,49 +181,21 @@ function createPresets() {
                 hint: function (cm) {
                     const cur = cm.getCursor();
                     const token = cm.getTokenAt(cur);
+                    const word = token.string.trim();
 
-                    const commands = [
-                        {
-                            text: 'key.enter; ',
-                            displayText: 'key.enter - Simulate Enter key press',
-                        },
-                        { text: 'key.left; ', displayText: 'key.left - Move left' },
-                        { text: 'key.right; ', displayText: 'key.right - Move right' },
-                        { text: 'delay.50; ', displayText: 'delay.50 - Pause for 50ms' },
-                        { text: 'delay.100; ', displayText: 'delay.100 - Pause for 100ms' },
-                        { text: 'delay.500; ', displayText: 'delay.500 - Pause for 500ms' },
-                    ];
+                    list = commands.filter((cmd) =>
+                        cmd.text.toLowerCase().includes(word.toLowerCase())
+                    );
 
-                    const list = commands.filter((cmd) => cmd.text.startsWith(token.string));
                     return {
-                        list: list,
+                        list,
                         from: CodeMirror.Pos(cur.line, token.start),
                         to: CodeMirror.Pos(cur.line, token.end),
                     };
                 },
-                completeSingle: false, // Don't auto-select first suggestion
+                completeSingle: false,
+                maxHeight: '600px',
             },
-        });
-
-        CodeMirror.registerHelper('hint', 'javascript', function (editor) {
-            const cursor = editor.getCursor();
-            const token = editor.getTokenAt(cursor);
-
-            // Suggest commands matching the current text
-            const suggestions = macroCommands
-                .filter((cmd) => cmd.text.startsWith(token.string))
-                .map((cmd) => ({ text: cmd.text, displayText: cmd.displayText }));
-
-            return {
-                list: suggestions,
-                from: CodeMirror.Pos(cursor.line, token.start),
-                to: CodeMirror.Pos(cursor.from.line, token.end),
-            };
-        });
-
-        // Attach the auto-complete to Ctrl+Space
-        editor.setOption('extraKeys', {
-            'Ctrl-Space': 'autocomplete',
         });
 
         editors.push(editor);

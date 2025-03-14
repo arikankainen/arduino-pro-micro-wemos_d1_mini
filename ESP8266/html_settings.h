@@ -430,6 +430,7 @@ button:disabled:active {
     color: #ddd !important;
     font-family: monospace;
     font-size: 14px;
+    max-height: 600px !important;
 }
 
 .CodeMirror-hint {
@@ -440,6 +441,10 @@ button:disabled:active {
 .CodeMirror-hint-active {
     background: #303030 !important;
     color: #eee !important;
+}
+
+.CodeMirror * {
+    font-family: 'Courier New', Courier, monospace;
 }
 </style>
         <link rel="preconnect" href="https://fonts.googleapis.com" />

@@ -23,6 +23,7 @@ void checkSerial() {
         if (receiving) {
             if (receivedData == "") receivedData = line;
             else receivedData += "\n" + line;
+            return;
         }
 
         if (line.indexOf("ap_ip=") != -1) {
@@ -51,12 +52,12 @@ void checkSerial() {
             }
         }
 
-        if (line.indexOf("ap_connecting") != -1) {
+        if (line.indexOf("error_connecting") != -1) {
             lcd.clear();
             lcd.setCursor(0, 0);
-            lcd.print("Creating");
+            lcd.print("Error connecting");
             lcd.setCursor(0, 1);
-            lcd.print("Access Point...");
+            lcd.print("network!");
         }
 
         if (line.indexOf("ap_connecting") != -1) {
@@ -64,7 +65,7 @@ void checkSerial() {
             lcd.setCursor(0, 0);
             lcd.print("Creating");
             lcd.setCursor(0, 1);
-            lcd.print("Access Point...");
+            lcd.print("Access point...");
         }
 
         if (line.indexOf("station_connecting") != -1) {
@@ -72,7 +73,7 @@ void checkSerial() {
             lcd.setCursor(0, 0);
             lcd.print("Connecting to");
             lcd.setCursor(0, 1);
-            lcd.print("Network...");
+            lcd.print("network...");
         }
 
         if (line.indexOf("preset_saved=") != -1) {
@@ -86,24 +87,6 @@ void checkSerial() {
             getIpAddress();
         }
     }
-}
-
-void dataReceived() {
-    Keyboard.print(receivedData);
-    // Serial.println("*************************");
-    // Serial.println(receivedData);
-    // Serial.println("*************************");
-    // Keyboard.write(KEY_LEFT_ARROW);
-    // Keyboard.write(KEY_LEFT_ARROW);
-    // Keyboard.write(KEY_LEFT_ARROW);
-    // Keyboard.write(KEY_LEFT_ARROW);
-    // Keyboard.write(KEY_LEFT_ARROW);
-    // Keyboard.write(KEY_RETURN);
-    // Keyboard.write(KEY_UP_ARROW);
-    // Keyboard.write(KEY_RIGHT_ARROW);
-    // Keyboard.write(KEY_RIGHT_ARROW);
-    // Keyboard.write(KEY_RIGHT_ARROW);
-    // Keyboard.write(KEY_F2);
 }
 
 void disableSerial1() {
