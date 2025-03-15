@@ -23,7 +23,8 @@ void checkSerial() {
         if (line.indexOf("button=") != -1) {
             String button = line.substring(line.indexOf('=') + 1);
             uint8_t preset = button.toInt() + 1;
-            sendPresetToSerial(String(preset));
+
+            if (preset <= 10) sendPresetToSerial(String(preset));
         }
     }
 }

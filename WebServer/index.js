@@ -5,8 +5,9 @@ async function savePreset(preset) {
     let data;
 
     try {
-        const contentAsJavascript = eval(content);
-        data = JSON.stringify({ preset: preset.toString(), content: contentAsJavascript });
+        // const contentAsJavascript = eval(content);
+        // data = JSON.stringify({ preset: preset.toString(), content: contentAsJavascript });
+        data = JSON.stringify({ preset: preset.toString(), content });
     } catch (error) {
         console.error('Error:', error);
         alert('Invalid JSON: ' + error);
@@ -135,51 +136,49 @@ function createPresets() {
             'KEY_PAUSE',
         ];
 
-        const delays = [50, 100, 200, 500, 1000, 2000, 5000, 10000];
+        const delays = [50, 100, 200, 500, 1000];
 
         const keyCommands = keys.map((key) => {
             return {
-                text: `key: "${key}"`,
-                displayText: `key: "${key}"`,
+                text: `"key": "${key}"`,
+                displayText: `"key": "${key}"`,
             };
         });
 
         const delayCommands = delays.map((delay) => {
             return {
-                text: `delay: "${delay}"`,
-                displayText: `delay: "${delay}"`,
+                text: `"delay": "${delay}"`,
+                displayText: `"delay": "${delay}"`,
             };
         });
 
         const textCommands = [
             {
-                text: `text: ""`,
-                displayText: `text: ""`,
+                text: `"text": ""`,
+                displayText: `"text": ""`,
             },
         ];
 
         const additionalCommands = [
             {
-                text: `repeat: 2`,
-                displayText: `repeat: 2`,
+                text: `"repeat": 2`,
+                displayText: `"repeat": 2`,
             },
             {
-                text: `press: true`,
-                displayText: `press: true`,
+                text: `"press": true`,
+                displayText: `"press": true`,
             },
             {
-                text: `release: true`,
-                displayText: `release: true`,
+                text: `"release": true`,
+                displayText: `"release": true`,
+            },
+            {
+                text: `"release": "all"`,
+                displayText: `"release": "all"`,
             },
         ];
 
-        let commands = [
-            ...keyCommands,
-            ...additionalCommands,
-            // ...keyCommandsWithRepeat,
-            ...delayCommands,
-            ...textCommands,
-        ];
+        let commands = [...keyCommands, ...additionalCommands, ...delayCommands, ...textCommands];
 
         const editor = CodeMirror.fromTextArea(document.getElementById(`editor${i}`), {
             mode: 'javascript',
@@ -231,28 +230,30 @@ function createPresets() {
             'Ctrl-Space': 'autocomplete',
         });
 
-        editor.on('beforeChange', (cm, change) => {
-            if (change.origin === 'setValue') return;
+        // editor.on('beforeChange', (cm, change) => {
+        //     if (change.origin === 'setValue') return;
 
-            const { from, to } = change;
-            if (
-                from.line === 0 ||
-                to.line === 0 ||
-                from.line === cm.lastLine() ||
-                to.line === cm.lastLine()
-            ) {
-                change.cancel();
-            }
-        });
+        //     const { from, to } = change;
+        //     if (
+        //         from.line === 0 ||
+        //         to.line === 0 ||
+        //         from.line === cm.lastLine() ||
+        //         to.line === cm.lastLine()
+        //     ) {
+        //         change.cancel();
+        //     }
+        // });
 
         editor.on('change', (cm, change) => {
             resizeEditor();
+
             if (change.origin === 'complete') {
                 const cur = cm.getCursor();
                 const lineContent = cm.getLine(cur.line);
                 const insertedText = change.text.join('');
+                const lineWasEmpty = lineContent.replace(insertedText, '').trim() === '';
 
-                if (lineContent.replace(insertedText, '').trim() === '') {
+                if (lineWasEmpty) {
                     const wrappedText = `    { ${insertedText} },`;
 
                     cm.replaceRange(
@@ -261,7 +262,11 @@ function createPresets() {
                         { line: cur.line, ch: lineContent.length }
                     );
 
-                    cm.setCursor(CodeMirror.Pos(cur.line, wrappedText.length));
+                    if (change.text.includes('"text": ""')) {
+                        cm.setCursor(cur.line, wrappedText.length - 4);
+                    } else {
+                        cm.setCursor(cur.line, wrappedText.length);
+                    }
                 }
             }
         });

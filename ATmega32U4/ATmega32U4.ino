@@ -1,5 +1,7 @@
 #include <Keyboard.h>
 #include <LiquidCrystal_I2C.h>
+#include <ArduinoJson.h>
+#include <avr/pgmspace.h>
 
 #define BOUNCE_DELAY 100
 #define DOUBLE_PRESS_MAX_DELAY 500

@@ -487,7 +487,17 @@ const editors = [];
 
 async function savePreset(preset) {
     const content = editors[preset - 1].getValue();
-    const data = JSON.stringify({ preset: preset.toString(), content });
+    let data;
+
+    try {
+        // const contentAsJavascript = eval(content);
+        // data = JSON.stringify({ preset: preset.toString(), content: contentAsJavascript });
+        data = JSON.stringify({ preset: preset.toString(), content });
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Invalid JSON: ' + error);
+        return;
+    }
 
     try {
         const response = await fetch('/save_preset', {
@@ -513,7 +523,7 @@ async function getPreset(preset) {
         });
 
         const responseText = await response.text();
-        editors[preset - 1].setValue(responseText);
+        if (responseText) editors[preset - 1].setValue(responseText);
     } catch (error) {
         console.error('Error:', error);
     }
@@ -611,48 +621,57 @@ function createPresets() {
             'KEY_PAUSE',
         ];
 
-        const delays = [50, 100, 200, 500, 1000, 2000, 5000, 10000];
+        const delays = [50, 100, 200, 500, 1000];
 
         const keyCommands = keys.map((key) => {
             return {
-                text: `{ key: "${key}" },`,
-                displayText: `{ key: "${key}" }`,
-            };
-        });
-
-        const keyCommandsWithRepeat = keys.map((key) => {
-            return {
-                text: `{ key: "${key}", repeat: 2 },`,
-                displayText: `{ key: "${key}", repeat: 2 }`,
+                text: `"key": "${key}"`,
+                displayText: `"key": "${key}"`,
             };
         });
 
         const delayCommands = delays.map((delay) => {
             return {
-                text: `{ delay: "${delay}" },`,
-                displayText: `{ key: "${delay}" }`,
+                text: `"delay": "${delay}"`,
+                displayText: `"delay": "${delay}"`,
             };
         });
 
         const textCommands = [
             {
-                text: `{ text: "" },`,
-                displayText: `{ text: "" }`,
+                text: `"text": ""`,
+                displayText: `"text": ""`,
             },
         ];
 
-        let commands = [
-            ...keyCommands,
-            ...keyCommandsWithRepeat,
-            ...delayCommands,
-            ...textCommands,
+        const additionalCommands = [
+            {
+                text: `"repeat": 2`,
+                displayText: `"repeat": 2`,
+            },
+            {
+                text: `"press": true`,
+                displayText: `"press": true`,
+            },
+            {
+                text: `"release": true`,
+                displayText: `"release": true`,
+            },
+            {
+                text: `"release": "all"`,
+                displayText: `"release": "all"`,
+            },
         ];
+
+        let commands = [...keyCommands, ...additionalCommands, ...delayCommands, ...textCommands];
 
         const editor = CodeMirror.fromTextArea(document.getElementById(`editor${i}`), {
             mode: 'javascript',
             theme: 'material-darker',
             lineNumbers: true,
-            extraKeys: { 'Ctrl-Space': 'autocomplete' },
+            tabSize: 4,
+            indentWithTabs: false,
+            indentUnit: 4,
             hintOptions: {
                 hint: function (cm) {
                     const cur = cm.getCursor();
@@ -670,7 +689,6 @@ function createPresets() {
                     };
                 },
                 completeSingle: false,
-                maxHeight: '600px',
             },
         });
 
@@ -686,8 +704,57 @@ function createPresets() {
             editor.setSize(null, height);
         }
 
-        editor.on('change', resizeEditor);
         resizeEditor();
+        editor.setValue('[\n    \n]');
+
+        editor.setOption('extraKeys', {
+            Tab: (cm) => {
+                cm.replaceSelection('    ', 'end');
+            },
+            'Shift-Tab': 'indentLess',
+            'Ctrl-Space': 'autocomplete',
+        });
+
+        // editor.on('beforeChange', (cm, change) => {
+        //     if (change.origin === 'setValue') return;
+
+        //     const { from, to } = change;
+        //     if (
+        //         from.line === 0 ||
+        //         to.line === 0 ||
+        //         from.line === cm.lastLine() ||
+        //         to.line === cm.lastLine()
+        //     ) {
+        //         change.cancel();
+        //     }
+        // });
+
+        editor.on('change', (cm, change) => {
+            resizeEditor();
+
+            if (change.origin === 'complete') {
+                const cur = cm.getCursor();
+                const lineContent = cm.getLine(cur.line);
+                const insertedText = change.text.join('');
+                const lineWasEmpty = lineContent.replace(insertedText, '').trim() === '';
+
+                if (lineWasEmpty) {
+                    const wrappedText = `    { ${insertedText} },`;
+
+                    cm.replaceRange(
+                        wrappedText,
+                        { line: cur.line, ch: 0 },
+                        { line: cur.line, ch: lineContent.length }
+                    );
+
+                    if (change.text.includes('"text": ""')) {
+                        cm.setCursor(cur.line, wrappedText.length - 4);
+                    } else {
+                        cm.setCursor(cur.line, wrappedText.length);
+                    }
+                }
+            }
+        });
     }
 }
 

@@ -58,6 +58,7 @@ void checkSerial() {
             lcd.print("Error connecting");
             lcd.setCursor(0, 1);
             lcd.print("network!");
+            turnDisplayOn();
         }
 
         if (line.indexOf("ap_connecting") != -1) {
@@ -66,6 +67,7 @@ void checkSerial() {
             lcd.print("Creating");
             lcd.setCursor(0, 1);
             lcd.print("Access point...");
+            turnDisplayOn();
         }
 
         if (line.indexOf("station_connecting") != -1) {
@@ -74,6 +76,7 @@ void checkSerial() {
             lcd.print("Connecting to");
             lcd.setCursor(0, 1);
             lcd.print("network...");
+            turnDisplayOn();
         }
 
         if (line.indexOf("preset_saved=") != -1) {
