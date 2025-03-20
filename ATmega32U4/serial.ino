@@ -52,13 +52,19 @@ void checkSerial() {
             }
         }
 
-        if (line.indexOf("error_connecting") != -1) {
-            lcd.clear();
-            lcd.setCursor(0, 0);
-            lcd.print("Error connecting");
-            lcd.setCursor(0, 1);
-            lcd.print("network!");
-            turnDisplayOn();
+        if (line.indexOf("error_code") != -1) {
+            int equalPos = line.indexOf('=');
+            if (equalPos != -1) {
+                String code = line.substring(equalPos + 1);
+                lcd.clear();
+                lcd.setCursor(0, 0);
+                lcd.print("Error connecting");
+                lcd.setCursor(0, 1);
+                lcd.print("Code: ");
+                lcd.setCursor(6, 1);
+                lcd.print(code);
+                turnDisplayOn();
+            }
         }
 
         if (line.indexOf("ap_connecting") != -1) {

@@ -552,7 +552,6 @@ async function getNetworks() {
         });
 
         const responseJson = await response.json();
-        checkIfConnected();
         renderNetworks(responseJson.networks);
     } catch (error) {
         setTimeout(() => alert(error), 300);
@@ -647,6 +646,7 @@ function renderNetworks(networks) {
     const sortedNetworks = [...networks].sort((a, b) => b.signalStrengthDb - a.signalStrengthDb);
 
     _networks = sortedNetworks;
+    checkIfConnected();
 
     sortedNetworks.forEach((network, index) => {
         container.appendChild(createNetworkElement(network, index));

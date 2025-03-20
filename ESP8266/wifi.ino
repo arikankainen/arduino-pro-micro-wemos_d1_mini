@@ -42,7 +42,8 @@ void sendStationModeIpAddress() {
 }
 
 void sendErrorConnecting() {
-    Serial.print("error_connecting");
+    Serial.print("error_code=");
+    Serial.println(WiFi.status());
 }
 
 void sendStationModeConnecting() {
@@ -66,16 +67,21 @@ void beginWifiStationMode() {
     String ssid = readFile("ssid.txt");
     String password = readFile("pass.txt");
 
+    WiFi.mode(WIFI_STA);
+    WiFi.setPhyMode(WIFI_PHY_MODE_11G);
     WiFi.begin(ssid.c_str(), password.c_str());
 
     Serial.print("Connecting to WiFi...");
 
     unsigned long startAttemptTime = millis();
-    const unsigned long timeout = 10000;
+    const unsigned long timeout = 20000;
 
     while (WiFi.status() != WL_CONNECTED) {
         if (millis() - startAttemptTime > timeout) {
             Serial.println("\nWiFi connection failed. Giving up.");
+
+            Serial.print("WiFi Status Code: ");
+            Serial.println(WiFi.status());
 
             Serial.print("SSID:'");
             Serial.print(ssid);
