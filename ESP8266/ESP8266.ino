@@ -12,6 +12,7 @@ ESP8266WebServer server(80);
 bool wifiApMode = false;
 
 void setup() {
+    delay(1000);
     setupFile();
     setupSerial();
     setupWifi();

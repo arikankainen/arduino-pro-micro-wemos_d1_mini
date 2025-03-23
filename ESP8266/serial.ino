@@ -7,10 +7,6 @@ void checkSerial() {
         String line = Serial.readStringUntil('\n');
         line.trim();
 
-        // Serial.print("<DATA>");
-        // Serial.print(line);
-        // Serial.println("</DATA>");
-
         if (line == "button_long=10") {
             handleDisplayButtonLongPress();
         }

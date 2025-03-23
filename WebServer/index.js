@@ -1,13 +1,111 @@
 const editors = [];
 
+const KeyCodes = {
+    KEY_LEFT_CTRL: 128,
+    KEY_LEFT_SHIFT: 129,
+    KEY_LEFT_ALT: 130,
+    KEY_LEFT_GUI: 131,
+    KEY_RIGHT_CTRL: 132,
+    KEY_RIGHT_SHIFT: 133,
+    KEY_RIGHT_ALT: 134,
+    KEY_RIGHT_GUI: 135,
+    KEY_TAB: 179,
+    KEY_CAPS_LOCK: 193,
+    KEY_BACKSPACE: 178,
+    KEY_ENTER: 176,
+    KEY_RETURN: 176,
+    KEY_MENU: 237,
+    KEY_INSERT: 209,
+    KEY_DELETE: 212,
+    KEY_HOME: 210,
+    KEY_END: 213,
+    KEY_PAGE_UP: 211,
+    KEY_PAGE_DOWN: 214,
+    KEY_UP_ARROW: 218,
+    KEY_DOWN_ARROW: 217,
+    KEY_LEFT_ARROW: 216,
+    KEY_RIGHT_ARROW: 215,
+    KEY_ESC: 177,
+    KEY_F1: 194,
+    KEY_F2: 195,
+    KEY_F3: 196,
+    KEY_F4: 197,
+    KEY_F5: 198,
+    KEY_F6: 199,
+    KEY_F7: 200,
+    KEY_F8: 201,
+    KEY_F9: 202,
+    KEY_F10: 203,
+    KEY_F11: 204,
+    KEY_F12: 205,
+    KEY_NUM_LOCK: 219,
+    KEY_KP_SLASH: 220,
+    KEY_KP_ASTERISK: 221,
+    KEY_KP_MINUS: 222,
+    KEY_KP_PLUS: 223,
+    KEY_KP_ENTER: 224,
+    KEY_KP_1: 225,
+    KEY_KP_2: 226,
+    KEY_KP_3: 227,
+    KEY_KP_4: 228,
+    KEY_KP_5: 229,
+    KEY_KP_6: 230,
+    KEY_KP_7: 231,
+    KEY_KP_8: 232,
+    KEY_KP_9: 233,
+    KEY_KP_0: 234,
+    KEY_KP_DOT: 235,
+};
+
+function getKeyCode(key) {
+    return KeyCodes[key] || key;
+}
+
+function getKeyName(code) {
+    return Object.keys(KeyCodes).find((key) => KeyCodes[key] === code) || code;
+}
+
+const customStringify = (obj) => {
+    const stringified = JSON.stringify(obj, null, 4);
+    const formatted = stringified
+        .replace(/\n\s*/g, ' ')
+        .replace(/\}, \{/g, '},\n{')
+        .replace(/\[\s+{/g, '[\n{')
+        .replace(/}\s+]/g, '}\n]')
+        .replace(/\{/g, '    {');
+
+    return formatted;
+};
+
 async function savePreset(preset) {
     const content = editors[preset - 1].getValue();
+
+    const jsonContent = (() => {
+        if (content === '') return content;
+
+        const contentWithoutTrailingCommas = content.replace(/,\s*}/g, '}').replace(/,\s*\]/g, ']');
+        const json = JSON.parse(contentWithoutTrailingCommas);
+
+        if (json === '') return json;
+        if (!Array.isArray(json)) return json;
+
+        return json.map((item) => {
+            if ('key' in item) {
+                return {
+                    ...item,
+                    key: getKeyCode(item.key),
+                };
+            }
+
+            return item;
+        });
+    })();
+
     let data;
 
     try {
-        // const contentAsJavascript = eval(content);
-        // data = JSON.stringify({ preset: preset.toString(), content: contentAsJavascript });
-        data = JSON.stringify({ preset: preset.toString(), content });
+        data = JSON.stringify({ preset: preset.toString(), content: jsonContent });
+        console.log(data);
     } catch (error) {
         console.error('Error:', error);
         alert('Invalid JSON: ' + error);
@@ -38,7 +136,28 @@ async function getPreset(preset) {
         });
 
         const responseText = await response.text();
-        if (responseText) editors[preset - 1].setValue(responseText);
+
+        const jsonContent = (() => {
+            if (responseText === '') return responseText;
+
+            const responseJson = JSON.parse(responseText);
+            if (responseJson === '') return responseJson;
+
+            if (!Array.isArray(responseJson)) return responseJson;
+
+            return responseJson.map((item) => {
+                if ('key' in item) {
+                    return {
+                        ...item,
+                        key: getKeyName(item.key),
+                    };
+                }
+
+                return item;
+            });
+        })();
+
+        if (jsonContent) editors[preset - 1].setValue(customStringify(jsonContent));
     } catch (error) {
         console.error('Error:', error);
     }
@@ -77,65 +196,7 @@ function createPresets() {
     for (let i = 1; i <= 10; i++) {
         container.appendChild(createPresetElement(i));
 
-        const keys = [
-            'KEY_UP_ARROW',
-            'KEY_DOWN_ARROW',
-            'KEY_LEFT_ARROW',
-            'KEY_RIGHT_ARROW',
-            'KEY_LEFT_CTRL',
-            'KEY_LEFT_SHIFT',
-            'KEY_LEFT_ALT',
-            'KEY_LEFT_GUI',
-            'KEY_RIGHT_CTRL',
-            'KEY_RIGHT_SHIFT',
-            'KEY_RIGHT_ALT',
-            'KEY_RIGHT_GUI',
-            'KEY_TAB',
-            'KEY_CAPS_LOCK',
-            'KEY_BACKSPACE',
-            'KEY_RETURN',
-            'KEY_MENU',
-            'KEY_INSERT',
-            'KEY_DELETE',
-            'KEY_HOME',
-            'KEY_END',
-            'KEY_PAGE_UP',
-            'KEY_PAGE_DOWN',
-            'KEY_NUM_LOCK',
-            'KEY_KP_SLASH',
-            'KEY_KP_ASTERISK',
-            'KEY_KP_MINUS',
-            'KEY_KP_PLUS',
-            'KEY_KP_ENTER',
-            'KEY_KP_1',
-            'KEY_KP_2',
-            'KEY_KP_3',
-            'KEY_KP_4',
-            'KEY_KP_5',
-            'KEY_KP_6',
-            'KEY_KP_7',
-            'KEY_KP_8',
-            'KEY_KP_9',
-            'KEY_KP_0',
-            'KEY_KP_DOT',
-            'KEY_ESC',
-            'KEY_F1',
-            'KEY_F2',
-            'KEY_F3',
-            'KEY_F4',
-            'KEY_F5',
-            'KEY_F6',
-            'KEY_F7',
-            'KEY_F8',
-            'KEY_F9',
-            'KEY_F10',
-            'KEY_F11',
-            'KEY_F12',
-            'KEY_PRINT_SCREEN',
-            'KEY_SCROLL_LOCK',
-            'KEY_PAUSE',
-        ];
-
+        const keys = Object.keys(KeyCodes);
         const delays = [50, 100, 200, 500, 1000];
 
         const keyCommands = keys.map((key) => {
@@ -229,20 +290,6 @@ function createPresets() {
             'Shift-Tab': 'indentLess',
             'Ctrl-Space': 'autocomplete',
         });
-
-        // editor.on('beforeChange', (cm, change) => {
-        //     if (change.origin === 'setValue') return;
-
-        //     const { from, to } = change;
-        //     if (
-        //         from.line === 0 ||
-        //         to.line === 0 ||
-        //         from.line === cm.lastLine() ||
-        //         to.line === cm.lastLine()
-        //     ) {
-        //         change.cancel();
-        //     }
-        // });
 
         editor.on('change', (cm, change) => {
             resizeEditor();
