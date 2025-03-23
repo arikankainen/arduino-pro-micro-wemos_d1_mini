@@ -62,11 +62,11 @@ if __name__ == "__main__":
     index_content = generate_index_cpp_header()
     settings_content = generate_settings_cpp_header()
 
-    with open("ESP8266/html_index.h", "w", encoding="utf-8") as output_file:
+    with open("WeMos/html_index.h", "w", encoding="utf-8") as output_file:
         output_file.write(index_content)
     print("Successfully generated 'html_index.h'")
 
-    with open("ESP8266/html_settings.h", "w", encoding="utf-8") as output_file:
+    with open("WeMos/html_settings.h", "w", encoding="utf-8") as output_file:
         output_file.write(settings_content)
     print("Successfully generated 'html_settings.h'")
 
